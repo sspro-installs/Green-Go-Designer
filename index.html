@@ -1,4 +1,1710 @@
-if (!State.projectDetails.configName || !State.projectDetails.userName) {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+  <title>Green-GO Dynamic System Designer (Optimized)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: #111827; color: #d1d5db; min-height: 100vh; }
+    
+    /* Utility Classes */
+    .container { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
+    .flex { display: flex; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .flex-center { display: flex; align-items: center; }
+    .flex-col { display: flex; flex-direction: column; }
+    .flex-1 { flex: 1; }
+    .grid { display: grid; gap: 1rem; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-6 > * + * { margin-top: 1.5rem; }
+    .space-y-8 > * + * { margin-top: 2rem; }
+    .space-x-2 > * + * { margin-left: 0.5rem; }
+    .space-x-3 > * + * { margin-left: 0.75rem; }
+    .space-x-4 > * + * { margin-left: 1rem; }
+    
+    /* Typography */
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    
+    /* Colors */
+    .text-gray-300 { color: #d1d5db; }
+    .text-gray-400 { color: #9ca3af; }
+    .text-gray-500 { color: #6b7280; }
+    .text-gray-600 { color: #4b5563; }
+    .text-gray-700 { color: #374151; }
+    .text-gray-800 { color: #1f2937; }
+    .text-white { color: #ffffff; }
+    .text-green-400 { color: #4ade80; }
+    .text-green-500 { color: #22c55e; }
+    .text-green-600 { color: #16a34a; }
+    .text-green-700 { color: #15803d; }
+    .text-red-400 { color: #f87171; }
+    .text-red-500 { color: #ef4444; }
+    .text-red-600 { color: #dc2626; }
+    .text-indigo-400 { color: #818cf8; }
+    .text-indigo-500 { color: #6366f1; }
+    .text-indigo-600 { color: #4f46e5; }
+    .text-yellow-400 { color: #facc15; }
+    .text-yellow-500 { color: #eab308; }
+    .text-yellow-700 { color: #a16207; }
+    .bg-gray-900 { background-color: #111827; }
+    .bg-gray-800 { background-color: #1f2937; }
+    .bg-gray-700 { background-color: #374151; }
+    .bg-gray-600 { background-color: #4b5563; }
+    .bg-gray-500 { background-color: #6b7280; }
+    .bg-white { background-color: white; }
+    .bg-gray-50 { background-color: #f9fafb; }
+    .bg-green-600 { background-color: #16a34a; }
+    .bg-green-700 { background-color: #15803d; }
+    .bg-green-900 { background-color: #14532d; }
+    .bg-green-800 { background-color: #166534; }
+    .bg-red-600 { background-color: #dc2626; }
+    .bg-red-700 { background-color: #b91c1c; }
+    .bg-red-900 { background-color: #7f1d1d; }
+    .bg-indigo-600 { background-color: #4f46e5; }
+    .bg-indigo-700 { background-color: #4338ca; }
+    .bg-indigo-900 { background-color: #312e81; }
+    .bg-yellow-600 { background-color: #ca8a04; }
+    .bg-yellow-700 { background-color: #a16207; }
+    .bg-yellow-900 { background-color: #713f12; }
+    
+    /* Borders */
+    .border { border: 1px solid #374151; }
+    .border-2 { border: 2px solid #374151; }
+    .border-4 { border: 4px solid #374151; }
+    .border-t { border-top: 1px solid #374151; }
+    .border-t-2 { border-top: 2px solid #374151; }
+    .border-t-4 { border-top: 4px solid #374151; }
+    .border-b { border-bottom: 1px solid #374151; }
+    .border-l-4 { border-left: 4px solid; }
+    .border-gray-100 { border-color: #f3f4f6; }
+    .border-gray-200 { border-color: #e5e7eb; }
+    .border-gray-300 { border-color: #d1d5db; }
+    .border-gray-600 { border-color: #4b5563; }
+    .border-gray-700 { border-color: #374151; }
+    .border-green-400 { border-color: #4ade80; }
+    .border-green-700 { border-color: #15803d; }
+    .border-red-500 { border-color: #ef4444; }
+    .border-red-600 { border-color: #dc2626; }
+    .border-indigo-400 { border-color: #818cf8; }
+    .border-indigo-500 { border-color: #6366f1; }
+    .border-yellow-500 { border-color: #eab308; }
+    .border-yellow-600 { border-color: #ca8a04; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-full { border-radius: 9999px; }
+    
+    /* Spacing */
+    .p-1 { padding: 0.25rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .p-8 { padding: 2rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pt-3 { padding-top: 0.75rem; }
+    .pt-4 { padding-top: 1rem; }
+    .pb-1 { padding-bottom: 0.25rem; }
+    .pb-2 { padding-bottom: 0.5rem; }
+    .pb-3 { padding-bottom: 0.75rem; }
+    .m-0 { margin: 0; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .ml-2 { margin-left: 0.5rem; }
+    .ml-5 { margin-left: 1.25rem; }
+    .mr-2 { margin-right: 0.5rem; }
+    .mx-1 { margin-left: 0.25rem; margin-right: 0.25rem; }
+    
+    /* Layout */
+    .w-full { width: 100%; }
+    .w-auto { width: auto; }
+    .h-4 { height: 1rem; }
+    .h-8 { height: 2rem; }
+    .h-10 { height: 2.5rem; }
+    .h-12 { height: 3rem; }
+    .h-16 { height: 4rem; }
+    .min-w-0 { min-width: 0; }
+    .max-w-sm { max-width: 24rem; }
+    .max-w-3xl { max-width: 48rem; }
+    .min-h-screen { min-height: 100vh; }
+    .block { display: block; }
+    .inline-block { display: inline-block; }
+    .inline-flex { display: inline-flex; }
+    .hidden { display: none; }
+    .overflow-y-auto { overflow-y: auto; }
+    .overflow-hidden { overflow: hidden; } 
+    .self-start { align-self: flex-start; }
+
+    /* Buttons */
+    button, [data-action] { cursor: pointer; transition: all 0.2s; border: none; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-primary { background: #16a34a; color: white; }
+    .btn-primary:hover:not(:disabled) { background: #15803d; }
+    .btn-secondary { background: #4b5563; color: #e5e7eb; }
+    .btn-secondary:hover { background: #6b7280; }
+    
+    /* Cards */
+    .card { background: #1f2937; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border: 1px solid #374151; }
+    
+    /* Shadows */
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2); }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .hover\:shadow-green-500\/20:hover { box-shadow: 0 10px 15px -3px rgba(74, 222, 128, 0.2), 0 4px 6px -2px rgba(74, 222, 128, 0.1); }
+
+    /* Forms */
+    input[type="text"], input[type="number"], select { 
+      width: 100%; 
+      padding: 0.5rem; 
+      border: 1px solid #4b5563;
+      border-radius: 0.375rem;
+      font-size: 16px;
+      background-color: #374151;
+      color: #d1d5db;
+    }
+    input[type="text"]::placeholder, input[type="number"]::placeholder {
+      color: #9ca3af;
+    }
+    input[type="checkbox"], input[type="radio"] { 
+      width: 1rem; 
+      height: 1rem; 
+      accent-color: #16a34a;
+      background-color: #4b5563;
+      border-color: #6b7280;
+    }
+    label { display: block; color: #d1d5db; }
+    
+    /* Images */
+    .img-fluid-small { 
+      max-width: 100%; 
+      height: auto; 
+      max-height: 120px; 
+      display: block; 
+      margin: 8px 0; 
+      border-radius: 4px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3); 
+    }
+    .img-modal-icon { 
+      max-height: 40px;
+      width: 40px;
+      object-fit: contain;
+      display: inline-block; 
+      margin-right: 8px; 
+      vertical-align: middle; 
+      border-radius: 4px; 
+      background-color: transparent;
+      padding: 2px;
+    }
+    .img-bom-thumb { 
+      max-height: 48px; 
+      max-width: 80px; 
+      width: auto; 
+      height: auto; 
+      object-fit: contain; 
+      display: inline-block; 
+      margin-right: 12px; 
+      vertical-align: middle; 
+      border-radius: 4px; 
+    }
+    
+    /* Bubble Controls */
+    .bubble-control { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border: 1px solid #4b5563;
+      border-radius: 8px; 
+      background-color: #374151;
+      padding: 4px 8px; 
+      height: 44px; 
+      max-width: 180px;
+    }
+    .bubble-control button { 
+      width: 36px; 
+      height: 36px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+      font-size: 1.4rem; 
+      border-radius: 9999px; 
+      background: none;
+    }
+    .bubble-minus { color: #f87171; border: 1px solid #ef4444; }
+    .bubble-plus { color: #4ade80; border: 1px solid #16a34a; }
+    .bubble-count { font-weight: bold; font-size: 1rem; min-width: 40px; text-align: center; color: #e5e7eb; }
+    
+    /* Modal */
+    .z-modal { z-index: 1000; }
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.7);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 1rem;
+    }
+    .modal-content { 
+      background: #1f2937;
+      color: #d1d5db;
+      padding: 1.5rem; 
+      border-radius: 1.5rem; 
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+      width: 100%; 
+      max-width: 48rem;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid #4b5563;
+    }
+    
+    /* Print Styles */
+    .no-print { display: block; }
+    .print-only { display: none; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: #fff; color: #1f2937; }
+      .card { box-shadow: none; border: 1px solid #e5e7eb; background: #fff; }
+      .text-green-800 { color: #166534; }
+      .text-gray-800 { color: #1f2937; }
+      .text-gray-600 { color: #4b5563; }
+      .text-green-600 { color: #16a34a; }
+      .text-red-600 { color: #dc2626; }
+      .border-b-2 { border-bottom-width: 2px; }
+      .border-gray-300 { border-color: #d1d5db; }
+      .border-b { border-bottom-width: 1px; }
+      .border-gray-200 { border-color: #e5e7eb; }
+      .border-t-4 { border-top-width: 4px; }
+      .border-green-700 { border-color: #15803d; }
+      .bg-green-100 { background-color: #dcfce7; }
+      .bg-red-50 { background-color: #fef2f2; }
+      .border-l-4 { border-left-width: 4px; }
+      .border-green-700 { border-color: #15803d; }
+      .border-red-500 { border-color: #ef4444; }
+      .text-red-700 { color: #b91c1c; }
+    }
+    
+    /* Responsive */
+    @media (min-width: 640px) {
+      .sm\:p-4 { padding: 1rem; }
+      .sm\:block { display: block; }
+    }
+    
+    @media (min-width: 1024px) {
+      .lg\:col-span-2 { grid-column: span 2; }
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+      .lg\:text-lg { font-size: 1.125rem; }
+    }
+    
+    @media (min-width: 768px) {
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+      .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+      .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+      .md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+      .md\:w-1\/2 { width: 50%; }
+      .md\:text-base { font-size: 1rem; }
+    }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .text-3xl { font-size: 1.5rem; }
+      .text-2xl { font-size: 1.25rem; }
+      .text-xl { font-size: 1.125rem; }
+      .p-8 { padding: 1rem; }
+      .p-6 { padding: 1rem; }
+      button, [data-action] { min-height: 44px; }
+      input[type="text"], select { min-height: 44px; }
+      .bubble-control { height: 44px; }
+      .bubble-control button { width: 40px; height: 40px; font-size: 1.5rem; }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .modal-content { margin: 1rem; width: calc(100vw - 2rem); }
+      .img-fluid-small { max-height: 80px; }
+    }
+    
+    /* Utilities */
+    .object-contain { object-fit: contain; }
+    .cursor-pointer { cursor: pointer; }
+    .cursor-not-allowed { cursor: not-allowed; }
+    .opacity-50 { opacity: 0.5; }
+    .transition { transition: all 0.3s; }
+    .duration-300 { transition-duration: 300ms; }
+    .list-disc { list-style-type: disc; }
+    .underline { text-decoration: underline; }
+
+    /* Custom scrollbar for dark theme */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1f2937; }
+    ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen">
+  <div id="app" class="container"></div>
+
+  <script>
+  (function(){
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    const Icons = {
+      Bell: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+      Link2: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 0 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+      Zap: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+      Headset: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>`,
+      Trash2: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`,
+      CheckCircle: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>`,
+      AlertCircle: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      Clipboard: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>`,
+      Edit: (cls='w-5 h-5') => `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`
+    };
+
+    const LABOR_RATE = 0.20;
+    const PROGRAMMING_SETUP_RATE = 0.05;
+    const WAA_RATIO = 4;
+    const BC6_RATIO = 6;
+    const SW_DEVICE_RATIO = 10;
+
+    const productGroups = [
+      {
+        name: 'Core Communication Devices',
+        icon: 'Bell',
+        description: 'Beltpacks, Base Stations, and Multi-Channel Stations.',
+        products: [
+          { id: 'WBPX', name: 'Wireless Beltpack', sku: 'GGO-WBPX', role: 'Primary DECT User Device', price: 2093.00, count: 0, isPoE: false, isCoreDevice: true, isWireless: true },
+          { id: 'WBPXHD', name: 'Wireless Beltpack (Sport)', sku: 'GGO-WBPX SPORT', role: 'Rugged DECT User Device', price: 2093.00, count: 0, isPoE: false, isCoreDevice: true, isWireless: true },
+          { id: 'GBPX', name: '32 Channel Wired Beltpack', sku: 'GGO-GBPX', role: 'Primary Wired User Device', price: 1031.33, count: 0, isPoE: true, isCoreDevice: true, isWireless: false },
+          { id: 'WSX', name: 'Surface Mount Wall Station w/ Headset and Speaker', sku: 'GGO-WPX', role: 'Permanent Wall-Mounted User Device', price: 1183.00, count: 0, isPoE: true, isCoreDevice: true, isWireless: false },
+          { id: 'MCX', name: '32 Channel Key Panel, 1U Rack Mount', sku: 'GGO-MCX', price: 3159.00, count: 0, isPoE: true, isCoreDevice: true, isWireless: false },
+          { id: 'MCXD', name: '32 Channel Key Panel, Desktop', sku: 'GGO-MCXD', role: '32-Channel Desktop Station', price: 3159.00, count: 0, isPoE: true, isCoreDevice: true, isWireless: false },
+          { id: 'MCXEXT', name: '24 Channel Key Panel Extension, 1U Rack Mount', sku: 'GGO-MCXEXT', role: '24-Channel Rack Extension', price: 2738.67, count: 0, isPoE: true, isCoreDevice: true, isWireless: false },
+          { id: 'MCXDEXT', name: '24 Channel Key Panel Extension, Desktop', sku: 'GGO-MCXDEXT', role: '24-Channel Desktop Extension', price: 2738.67, count: 0, isPoE: true, isCoreDevice: true, isWireless: false },
+          { id: 'BSRX', name: 'GreenGO -Stride DECT Antenna (US)', sku: 'GGO-STRIDEDAU', role: 'DECT Antenna/Master Station', price: 2847.00, count: 0, isPoE: true, isCoreDevice: true, isWireless: true },
+        ]
+      },
+      {
+        name: 'Interfaces',
+        icon: 'Link2',
+        description: 'Connect Green-GO network to external audio and intercom systems.',
+        products: [
+          { id: 'DNTI', name: 'Dante Interface', sku: 'GGO-DNTI', role: 'Dante Audio I/O', price: 3215.33, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'Q4WI', name: 'Quad 4-Wire Interface', sku: 'GGO-Q4WR', role: 'External 4-Wire Connection', price: 2353.00, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'BRIDC', name: 'Bridge Interface 4 Port', sku: 'GGO-BRIDGEX', role: 'Connecting two Green-GO networks', price: 2795.00, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'RDX', name: '2-Way Radio Interface', sku: 'GGO-RDX', role: 'Two-Way Radio Integration', price: 1031.33, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'INTERFACEX', name: 'Audio Interface, 2 x 4-wire and 2-wire', sku: 'GGO-INTERFACEX', role: 'Integrates 2-Wire & 4-Wire Analog Systems', price: 1798.33, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'SI2W', name: 'Single Port 2-Wire Throw Down Interface', sku: 'GGO-SI2W', role: 'External 2-Wire Connection', price: 1031.33, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'SI4W', name: 'Single Port 4-Wire or Line In/Out Throw Down Interface', sku: 'GGO-SI4W', role: 'External 4-Wire Connection/Line I/O', price: 1031.33, count: 0, isPoE: true, isCoreDevice: false },
+        ]
+      },
+      {
+        name: 'Network & Power Infrastructure',
+        icon: 'Zap',
+        description: 'Essential network switches and power supplies.',
+        products: [
+          { id: 'SW8', name: '8 PoE Ports + 1 Port Ethernet Switch', sku: 'GGO-SW818', role: 'System Foundation (Network/Power)', price: 1724.67, count: 0, ports: 8, isPoE: true, isSwitch: true },
+          { id: 'SW5', name: '5-Port Truss Mount Ethernet Switch with PoE', sku: 'GGO-SW5', role: 'Small Network Expansion', price: 901.33, count: 0, ports: 5, isPoE: false, isSwitch: true },
+          { id: 'SW6', name: 'Switch 6, PTPv2 Enabled 6-Port PoE+ Switch', sku: 'GGO-SW6', role: 'Small PTP/PoE Network Switch', price: 1100.67, count: 0, ports: 6, isPoE: true, isSwitch: true },
+          { id: 'WAA', name: 'Wireless Active Antenna', sku: 'GGO-WAA', role: 'DECT Wireless Coverage', price: 1993.33, count: 0, isPoE: true, isCoreDevice: false },
+          { id: 'SW18', name: '18-Port Gigabit Switch, 2 FO SFP cages', sku: 'GGO-SW18GBX', role: 'Central Backbone Switch', price: 4125.33, count: 0, ports: 8, isPoE: true, isSwitch: true },
+          { id: 'SFOM', name: 'Fiber Optic Multimode Module (SFP)', sku: 'GGO-SFOM', role: 'Long-distance fiber link', price: 190.67, count: 0 },
+          { id: 'BC6', name: '6 Way Rack Mount Battery Charger', sku: 'GGO-BC6', role: 'Wireless Beltpack Charging', price: 741.00, count: 0 },
+          { id: 'PSU1', name: 'Power Supply, 12V 1.8A DC', sku: 'GGO-PSU12V', role: 'External Power Input', price: 134.33, count: 0 },
+        ]
+      },
+      {
+        name: 'Accessories',
+        icon: 'Headset',
+        description: 'Essential accessories for operation.',
+        products: [
+          { id: 'HSET2E', name: 'Dual Cup Headset', sku: 'GGO-HS200D', role: 'High Noise/Focus Headset', price: 264.33, count: 0, isHeadset: true },
+          { id: 'HSET1E', name: 'Single Cup Headset', sku: 'GGO-HS200S', role: 'Primary Comm Headset', price: 234.00, count: 0, isHeadset: true },
+          { id: 'HSETC1E', name: 'Comfort Headset (DT 280, Single-Ear)', sku: 'BYR-DT280', role: 'Premium Single-Ear Comm Headset', price: 562.50, count: 0, isHeadset: true },
+          { id: 'HSETC2E', name: 'Comfort Headset (DT 290, Dual-Ear)', sku: 'BYR-DT290', role: 'Premium Dual-Ear Comm Headset', price: 625.00, count: 0, isHeadset: true },
+          { id: 'TELH', name: 'Telephone Style Handset', sku: 'GGO-GHSA05', role: 'Handset communication option', price: 199.33, count: 0, isHeadset: true },
+          { id: 'GMIC300', name: 'Electret Gooseneck Microphone (300mm)', sku: 'GGO-GNM300', role: 'Microphone for Key Panels', price: 199.33, count: 0 },
+          { id: 'GMIC430', name: 'Electret Gooseneck Microphone (430mm)', sku: 'GGO-GNM430', role: 'Microphone for Key Panels (Long)', price: 199.33, count: 0 },
+          { id: 'BCON', name: 'Cue Light/Call Beacon', sku: 'GGO-BEACON', role: 'Visual/Audio Alert Device', price: 715.00, count: 0 },
+          { id: 'NRGP', name: 'Spare Battery for WBPX', sku: 'GGO-NRGP', role: 'Spare Battery for Wireless Beltpacks', price: 112.67, count: 0 },
+          { id: 'HARN', name: 'Beltpack Harness', sku: 'GGO-HARNESS', role: 'Beltpack Accessory', price: 212.33, count: 0 },
+          { id: 'RMKI', name: 'Rack Mount Kit for SW5', sku: 'GGO-RMKIT', role: 'Rack Mount Accessory', price: 95.33, count: 0 },
+        ]
+      },
+      {
+        name: 'Customer Supplied',
+        icon: 'Headset',
+        description: 'Headsets provided by customer (no cost).',
+        products: [
+          { id: 'HSETCUST', name: 'Customer Supplied Headset', sku: 'CUST-HSET', role: 'Existing/Non-Purchased Comm Headset', price: 0.00, count: 0, isHeadset: true }
+        ]
+      }
+    ];
+
+    const productMap = (()=>{
+      const flat = {};
+      productGroups.forEach(g=>{
+        g.products.forEach(p=>{ flat[p.id] = { ...p, group: g.name }; });
+      });
+      return flat;
+    })();
+
+    const initialProducts = (()=>{
+      const arr=[];
+      productGroups.forEach(g=>g.products.forEach(p=>arr.push({ ...p, group: g.name, count: 0 })));
+      return arr;
+    })();
+
+    const productCache = new Map();
+    function getProduct(id) {
+      if (!productCache.has(id)) {
+        productCache.set(id, productMap[id]);
+      }
+      return productCache.get(id);
+    }
+
+    const imageMap = {
+      'CRC_LOGO': 'https://raw.githubusercontent.com/sspro-installs/media-assets/main/clients/CRC/CRC%20Logo.png',
+      'SS_LOGO': 'https://sspro-installs.github.io/media-assets/branding/SS-Pro-Logo-White.png',
+      'WBPX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BPXSP.png',
+      'WBPXHD': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BPXSP.png',
+      'GBPX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-GBPX.png',
+      'WSX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-Wallpanel-X.png',
+      'BSDX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BSDX.png',
+      'BSRX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BSRX.png',
+      'MCX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-MCXEXT.png',
+      'MCXD': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-MCXD.png',
+      'MCXEXT': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-MCXEXT.png',
+      'MCXDEXT': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-MCXDEXT.png',
+      'DNTI': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_dante-interface-x.png',
+      'Q4WI': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_Q4W.png',
+      'BRIDC': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BRIDGEX.png',
+      'RDX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-TD2WR.png',
+      'INTERFACEX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_INTERFACEX.png',
+      'SI2W': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SI2W.png',
+      'SI4W': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-TD4WR.png',
+      'SW8': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SW81.png',
+      'SW5': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SW5.png',
+      'SW6': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SW6.png',
+      'SW18': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SWITCH18.png',
+      'WAA': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-WAA.png',
+      'BC6': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BC6.png',
+      'HSET1E': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HS200S.png',
+      'HSET2E': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HS200D.png',
+      'HSETC1E': 'https://sspro-installs.github.io/media-assets/vendors/beyerdynamic/Beyerdynamic-DT280.png',
+      'HSETC2E': 'https://sspro-installs.github.io/media-assets/vendors/beyerdynamic/Beyerdynamic-DT-290-MKII.png',
+      'TELH': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HSA05.png',
+      'BCON': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-BEACON.png',
+      'GMIC300': 'https://raw.githubusercontent.com/sspro-installs/media-assets/main/vendors/greengo/GGO-GNM300.png',
+      'GMIC430': 'https://raw.githubusercontent.com/sspro-installs/media-assets/main/vendors/greengo/GGO-GNM430.png',
+      'HARN': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HARNESS.png',
+      'RMKI': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-RMKIT.png',
+      'PSU1': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-PSU12V.png',
+      'NRGP': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-NRGP.png',
+      'SFOM': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_SFOM.png',
+      'SOFTWARE': 'https://sspro-installs.github.io/media-assets/vendors/greengo/Green-go-Control.png'
+    };
+
+    const State = {
+      step: 1,
+      locations: [],
+      configProducts: {},
+      isFinalEditMode: false,
+      isLocationModalOpen: false,
+      editingLocationId: null,
+      systemAlert: { show:false, type:'info', message:'', onConfirm:null, onCancel:null },
+      projectDetails: { userName:'', configName:'' },
+      infrastructureDetails: {
+        isMultiSite: 'no',
+        farDistance: 'no',
+        wirelessAtFar: false,
+        wiredAtFar: false,
+        needsWalkieTalkieInterface: false,
+      },
+      savedConfigs: [],
+      isPrinting: false,
+      isCalculating: false,
+    };
+
+    try {
+      const stored = localStorage.getItem('greenGoConfigs');
+      State.savedConfigs = stored ? JSON.parse(stored) : [];
+    } catch(e) { State.savedConfigs = []; }
+
+    let lastLocationsHash = '';
+    let cachedConfig = {};
+
+    const fmt = (amount)=> new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', minimumFractionDigits:2 }).format(amount||0);
+
+    function calculateTotalConfig(currentLocations){
+      const locationsHash = JSON.stringify(currentLocations) + JSON.stringify(State.infrastructureDetails);
+      if (locationsHash === lastLocationsHash) {
+        return { ...cachedConfig };
+      }
+
+      const aggregated = {};
+      initialProducts.forEach(p => aggregated[p.id] = 0);
+
+      let totalSites = 0;
+      let totalWiredPoEDevices = 0;
+      let totalKeyPanels = 0;
+
+      currentLocations.forEach(loc=>{
+        totalSites++;
+        const keyPanelCount = loc.keyPanelCount|0;
+        if (keyPanelCount > 0){
+          const baseId = (loc.keyPanelMount === 'rackmount') ? 'MCX' : 'MCXD';
+          aggregated[baseId] += keyPanelCount;
+          totalWiredPoEDevices += keyPanelCount;
+          totalKeyPanels += keyPanelCount;
+        }
+        const wiredUsers = loc.wiredCount|0;
+        aggregated['GBPX'] += wiredUsers;
+        totalWiredPoEDevices += wiredUsers;
+        const wallStations = loc.wallStationCount|0;
+        aggregated['WSX'] += wallStations;
+        totalWiredPoEDevices += wallStations;
+        const wirelessUsers = loc.wirelessCount|0;
+        if (wirelessUsers > 0) {
+          const beltpackId = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
+          aggregated[beltpackId] += wirelessUsers;
+        }
+        aggregated['HSET1E'] += (loc.headsetSplit?.stdOneEar||0);
+        aggregated['HSET2E'] += (loc.headsetSplit?.stdDualEar||0);
+        aggregated['HSETC1E'] += (loc.headsetSplit?.comfortOneEar||0);
+        aggregated['HSETC2E'] += (loc.headsetSplit?.comfortDualEar||0);
+        aggregated['TELH'] += (loc.headsetSplit?.handset||0);
+        aggregated['BCON'] += (loc.beaconCount||0);
+        aggregated['HSETCUST'] += (loc.headsetSplit?.customerSupplied||0);
+      });
+
+      const totalWirelessUsers = currentLocations.reduce((s,l)=>s + (l.wirelessCount||0), 0);
+      aggregated['GMIC300'] += totalKeyPanels;
+
+      if (totalWirelessUsers > 0){
+        let waaCount = Math.ceil(totalWirelessUsers / WAA_RATIO);
+        aggregated['WAA'] += waaCount;
+        aggregated['BC6'] += Math.ceil(totalWirelessUsers / BC6_RATIO);
+        totalWiredPoEDevices += waaCount;
+      }
+
+      if (State.infrastructureDetails.isMultiSite === 'yes' && totalSites > 0){
+        const BRIDC_COUNT = 1;
+        aggregated['BRIDC'] += BRIDC_COUNT;
+        totalWiredPoEDevices += BRIDC_COUNT;
+      }
+
+      if (State.infrastructureDetails.needsWalkieTalkieInterface){
+        aggregated['RDX'] += 1;
+        totalWiredPoEDevices += 1;
+      }
+
+      if (State.infrastructureDetails.farDistance === 'yes'){
+        let totalFiberLinks = 2;
+        aggregated['SW18'] = 1;
+        aggregated['SW8'] = 0;
+        if (State.infrastructureDetails.wiredAtFar || State.infrastructureDetails.wirelessAtFar) {
+          aggregated['SFOM'] += totalFiberLinks;
+          aggregated['SW8'] += 1;
+        }
+      }
+
+      let currentSwitchCount = (aggregated['SW18'] || 0) + (aggregated['SW8'] || 0) + (aggregated['SW6'] || 0);
+      let requiredSwitches = Math.max(1, Math.ceil(totalWiredPoEDevices / SW_DEVICE_RATIO));
+      let switchesToAdd = requiredSwitches - currentSwitchCount;
+
+      if (switchesToAdd > 0 && aggregated['SW18'] === 0) {
+          aggregated['SW8'] += switchesToAdd;
+      } else if (switchesToAdd > 0 && aggregated['SW18'] > 0 && (State.infrastructureDetails.wiredAtFar || State.infrastructureDetails.wirelessAtFar)) {
+          aggregated['SW8'] += switchesToAdd;
+      } else if (totalWiredPoEDevices > 0 && currentSwitchCount === 0) {
+        aggregated['SW8'] = 1;
+      }
+
+      const out = {};
+      Object.entries(aggregated).forEach(([k,v])=>{ out[k]=v; });
+
+      lastLocationsHash = locationsHash;
+      cachedConfig = { ...out };
+      return out;
+    }
+
+    function computeFromProducts(finalProductsMap){
+      let list = Object.entries(finalProductsMap).map(([id,count])=>({ ...getProduct(id), count })).filter(p=>p && p.count>=0);
+      const equipmentCost = list.reduce((s,i)=> s + (i.price||0) * (i.count||0), 0);
+      const devicesCount = list.reduce((s,i)=> i.isCoreDevice ? s + (i.count||0) : s, 0);
+      const headsetsCount = list.reduce((s,i)=> i.isHeadset ? s + (i.count||0) : s, 0);
+      const labor = equipmentCost * LABOR_RATE;
+      const programming = equipmentCost * PROGRAMMING_SETUP_RATE;
+      const grand = equipmentCost + labor + programming;
+      return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand };
+    }
+
+    function runValidationChecks(productsList){
+      const issues = [];
+      const currentTotalDevices = productsList.reduce((s,i)=> i.isCoreDevice ? s + (i.count||0) : s, 0);
+      const currentTotalHeadsets = productsList.reduce((s,i)=> i.isHeadset ? s + (i.count||0) : s, 0);
+      if (currentTotalHeadsets < currentTotalDevices){
+        issues.push(`Headset Warning: Only ${currentTotalHeadsets} headsets/handsets configured for ${currentTotalDevices} core devices.`);
+      }
+      let totalPoEDevices = 0;
+      let totalPoEPorts = 0;
+      productsList.forEach(p=>{
+        if (p.isPoE && !p.isSwitch && p.id !== 'WAA') totalPoEDevices += p.count||0;
+        if (p.isSwitch && p.isPoE) totalPoEPorts += (p.ports||0) * (p.count||0);
+      });
+
+      if (totalPoEDevices > totalPoEPorts){
+        issues.push(`Infrastructure Warning: Estimated PoE Devices (${totalPoEDevices}) may exceed available dedicated PoE Switch Ports (${totalPoEPorts}). Review switch configuration.`);
+      }
+      const status = issues.length ? 'REVIEW' : 'PASS';
+      return { status, validation_issues: issues, totalPoEDevices, totalPoEPorts };
+    }
+
+    function saveConfigs(){
+      try {
+        const compressed = State.savedConfigs.map(cfg => ({
+          id: cfg.id,
+          name: cfg.name,
+          user: cfg.user,
+          products: Object.fromEntries(Object.entries(cfg.products).filter(([k,v]) => v > 0)),
+          locations: cfg.locations,
+          infrastructure: cfg.infrastructure,
+          totalCost: cfg.totalCost,
+          validationStatus: cfg.validationStatus
+        }));
+        localStorage.setItem('greenGoConfigs', JSON.stringify(compressed));
+      } catch(e) {
+        if (e.name === 'QuotaExceededError') {
+           if (State.savedConfigs.length > 0) {
+             State.savedConfigs.pop();
+             saveConfigs();
+             showAlert('Storage limit reached. Removed oldest configuration.', 'warning');
+           } else {
+             showAlert('Storage limit reached and no configurations to remove.', 'error');
+           }
+        } else {
+           showAlert('Error saving configurations.', 'error');
+        }
+      }
+    }
+
+    function renderHeader() {
+      return `
+        <div class="no-print flex-between items-center border-b border-gray-700 pb-2 mb-8">
+          <div class="flex flex-col">
+            <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
+            <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
+          </div>
+          <img src="${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 3.5rem;" class="w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
+        </div>
+      `;
+    }
+
+    function renderProgress() {
+      const steps = [
+        { title:'System Overview' },
+        { title:'Project Setup' },
+        { title:'Location Manager' },
+        { title:'Infrastructure' },
+        { title:'Review & Export' },
+      ];
+      const isSetupIncomplete = !State.projectDetails.configName || !State.projectDetails.userName;
+
+      return `
+        <div class="no-print flex justify-between mb-8">
+          ${steps.map((s,idx)=>`
+            <div data-action="set-step" data-step="${idx+1}"
+              class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${idx+1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer' }
+              ${idx+1===State.step ? 'bg-green-600 text-white shadow-lg' : (idx+1<State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')}">
+              <span class="font-medium text-sm md:text-base">Step ${idx+1}: ${s.title}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand) {
+      const costSection = equipmentCost > 0 ? `
+        <div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600"><span>Total Equipment Cost:</span><span class="text-green-400">${fmt(equipmentCost)}</span></div>
+      </div>
+      <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
+      <div class="space-y-2 mb-4">
+        <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost (${(LABOR_RATE*100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(labor)}</span></div>
+        <div class="flex-between"><span class="text-sm text-gray-400">Programming (${(PROGRAMMING_SETUP_RATE*100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
+      </div>
+      <div class="flex-between font-extrabold text-xl mt-4 border-t-4 pt-4 border-green-700">
+        <span class="text-white">GRAND TOTAL:</span>
+        <span class="text-red-400">${fmt(grand)}</span>
+      </div>
+      ` : `
+        <div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600"><span>Total Equipment Cost:</span><span class="text-green-400">${fmt(0)}</span></div>
+      </div>
+      <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
+      <div class="space-y-2 mb-4">
+        <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
+        <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
+      </div>
+      <div class="flex-between font-extrabold text-xl mt-4 border-t-4 pt-4 border-green-700">
+        <span class="text-white">GRAND TOTAL:</span>
+        <span class="text-red-400">${fmt(0)}</span>
+      </div>
+      `;
+
+      return `
+        <div class="space-y-8 no-print">
+          <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
+            <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-2 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+              Project Summary
+            </h2>
+            <div class="space-y-3 mb-6 text-gray-300">
+              <div class="flex-between font-semibold"><span>Locations Defined:</span><span>${State.locations.length}</span></div>
+              <div class="flex-between"><span>Total Core Devices:</span><span>${devicesCount||0}</span></div>
+              <div class="flex-between"><span>Total Headsets:</span><span>${headsetsCount||0}</span></div>
+              ${costSection}
+            </div>
+          </div>
+          ${renderSavedConfigs(equipmentCost)}
+        </div>`;
+    }
+
+    function renderApp(){
+      if (State.isFinalEditMode && State.step===1) State.step = 5;
+
+      const calculatedConfig = calculateTotalConfig(State.locations);
+      const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculatedConfig;
+
+      if (State.step===5 && State.locations.length>0 && !State.isFinalEditMode){
+        State.configProducts = { ...calculatedConfig };
+        State.isFinalEditMode = true;
+      }
+
+      const mapForDisplay = (State.step === 5 && State.isFinalEditMode) ?
+        Object.keys(productMap).reduce((acc, id) => {
+          acc[id] = finalProductsMap[id] || 0;
+          return acc;
+        }, {}) : finalProductsMap;
+
+      const { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand } = computeFromProducts(mapForDisplay);
+      const displayList = list.filter(p => p.id !== 'HSETCUST');
+
+      let stepContent;
+      if (State.step===1) stepContent = renderStep1Overview();
+      else if (State.step===2) stepContent = renderStep2();
+      else if (State.step===3) stepContent = renderStep3LocationManager(calculatedConfig);
+      else if (State.step===4) stepContent = renderStep4Infrastructure();
+      else stepContent = renderStep5Review(displayList, { equipmentCost, devicesCount, headsetsCount, labor, programming, grand });
+
+      const html = `
+        ${renderHeader()}
+        ${renderSystemAlert()}
+        ${State.isLocationModalOpen ? renderLocationModal() : ''}
+        ${renderProgress()}
+        <div class="grid lg:grid-cols-3 gap-8 p-0 sm:p-4">
+          <div class="lg:col-span-2 space-y-8">
+            <div class="card p-6 md:p-8">
+              ${stepContent}
+            </div>
+          </div>
+          ${renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand)}
+        </div>
+        ${renderPrintSection(displayList, { equipmentCost, labor, programming, grand })}
+      `;
+
+      document.getElementById('app').innerHTML = html;
+    }
+
+    function renderStep1Overview(){
+      return `
+        <div class="space-y-6 text-center">
+          <h1 class="text-3xl font-extrabold text-white">
+              Understand Your System
+          </h1>
+          <p class="text-lg text-green-400 max-w-3xl mx-auto">
+              Get familiar with the parts you'll need before starting the designer.
+          </p>
+          <p class="text-base text-gray-400 max-w-2xl mx-auto">
+              Here are the key components of a Green-GO intercom system.
+          </p>
+        </div>
+
+        <main class="flex-grow mt-8">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+                    <img class="w-full h-auto object-contain p-4 bg-gray-800"
+                         style="max-height: 200px;"
+                         src="${imageMap.SW8}"
+                         alt="Network Switch"
+                         onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Network+Switch'">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-green-400 mb-2">Network Switches</h3>
+                        <p class="text-sm text-gray-300">
+                            The heart of communication. Connects all Green-GO devices via standard Ethernet.
+                        </p>
+                    </div>
+                </div>
+
+                 <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+                    <img class="w-full h-auto object-contain p-4 bg-gray-800"
+                         style="max-height: 200px;"
+                         src="${imageMap.WSX}"
+                         alt="Wall Panel"
+                         onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wall+Panel'">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-green-400 mb-2">Wall Panels</h3>
+                        <p class="text-sm text-gray-300">
+                            Fixed intercom stations for specific locations, control rooms, or studios.
+                        </p>
+                    </div>
+                </div>
+
+                 <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+                    <img class="w-full h-auto object-contain p-4 bg-gray-800"
+                         style="max-height: 200px;"
+                         src="${imageMap.GBPX}"
+                         alt="Wired Beltpack"
+                         onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wired+Beltpack'">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-green-400 mb-2">Wired Beltpacks</h3>
+                        <p class="text-sm text-gray-300">
+                            Portable intercom units worn by crew members for communication on the move.
+                        </p>
+                    </div>
+                </div>
+
+                 <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+                    <img class="w-full h-auto object-contain p-4 bg-gray-800"
+                         style="max-height: 200px;"
+                         src="${imageMap.WBPX}"
+                         alt="Wireless Beltpack"
+                         onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wireless+Beltpack'">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-green-400 mb-2">Wireless Beltpacks</h3>
+                        <p class="text-sm text-gray-300">
+                            Cord-free versions that provide maximum flexibility and freedom in larger spaces.
+                        </p>
+                    </div>
+                </div>
+
+                 <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+                    <img class="w-full h-auto object-contain p-4 bg-gray-800"
+                         style="max-height: 200px;"
+                         src="${imageMap.INTERFACEX}"
+                         alt="Interfaces"
+                         onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Interfaces'">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-green-400 mb-2">Interfaces</h3>
+                        <p class="text-sm text-gray-300">
+                            Bridge your Green-GO network with external analog, 2-wire, 4-wire, or radio systems.
+                        </p>
+                    </div>
+                </div>
+
+                 <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+                    <img class="w-full h-auto object-contain p-4 bg-gray-800"
+                         style="max-height: 200px;"
+                         src="${imageMap.SOFTWARE}"
+                         alt="Software"
+                         onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Software'">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-green-400 mb-2">Software</h3>
+                        <p class="text-sm text-gray-300">
+                            Configure, monitor, and manage your entire intercom system from a computer.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="mt-8 pt-6 border-t border-gray-700">
+            <button data-action="set-step" data-step="2" class="w-full btn btn-primary py-3 text-lg hover:bg-green-700">
+                Start Designing Now &rarr;
+            </button>
+        </footer>
+      `;
+    }
+
+    function renderStep2(){
+      const disabled = (!State.projectDetails.configName || !State.projectDetails.userName) ? 'disabled' : '';
+      return `
+        <div class="space-y-6">
+          <h2 class="text-xl font-semibold text-green-400">2. Project Naming & Setup</h2>
+          <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-green-500">
+            <p class="text-sm text-gray-300">Define your project. This information is used to save and export configurations.</p>
+            <button data-action="skip-to-manual-check" class="mt-3 px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Skip to Manual BOM Entry →</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300" for="configName">Configuration Name</label>
+              <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="configName" type="text" value="${escapeHtml(State.projectDetails.configName||'')}" placeholder="e.g., Main Stage Intercom" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300" for="userName">Your Name (Designer)</label>
+              <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userName" type="text" value="${escapeHtml(State.projectDetails.userName||'')}" placeholder="e.g., John Smith" />
+            </div>
+          </div>
+          <button id="start-step2-btn" data-action="start-step2-check" ${disabled} class="w-full btn py-2 ${disabled? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700'}">Start Adding Locations</button>
+        </div>`;
+    }
+
+    function renderStep3LocationManager(aggregatedBOM){
+      return `
+        <div class="space-y-6">
+          <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
+          <div class="flex-between pb-3 border-b border-gray-700">
+            <h3 class="text-lg font-medium text-gray-300">Locations: ${State.locations.length}</h3>
+            <button data-action="open-location-modal" class="btn btn-primary px-4 py-2 hover:bg-green-700">+ Add Location</button>
+          </div>
+          ${State.locations.length===0 ? `
+            <div class="text-center py-10 text-gray-500 bg-gray-700 rounded-lg">Click "Add Location" to start</div>
+          ` : `
+            <div class="space-y-3">
+              ${State.locations.map(loc=>{
+                const parts = [];
+                if (loc.wiredCount > 0) parts.push(`${loc.wiredCount} Wired`);
+                if (loc.wirelessCount > 0) parts.push(`${loc.wirelessCount} Wireless`);
+                if (loc.wallStationCount > 0) parts.push(`${loc.wallStationCount} Wall`);
+                if ((loc.keyPanelCount||0) > 0) parts.push(`${loc.keyPanelCount} Panel`);
+                const summary = parts.length > 0 ? parts.join(', ') : 'No Devices';
+                return `
+                <div class="flex-between p-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm">
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-100">${escapeHtml(loc.name)}</p>
+                    <p class="text-xs text-gray-400">${summary}</p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button data-action="edit-location" data-id="${loc.id}" class="text-indigo-400 hover:text-indigo-300 p-1">${Icons.Edit()}</button>
+                    <button data-action="delete-location" data-id="${loc.id}" class="text-red-400 hover:text-red-300 p-1">${Icons.Trash2()}</button>
+                  </div>
+                </div>
+              `}).join('')}
+            </div>
+          `}
+          <button data-action="go-step4" ${State.locations.length===0? 'disabled' : ''} class="w-full btn py-2 ${State.locations.length===0? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700'}">Continue to Infrastructure →</button>
+        </div>`;
+    }
+
+    function renderStep4Infrastructure(){
+      const inf = State.infrastructureDetails;
+      const isFarDistance = inf.farDistance === 'yes';
+      return `
+        <div class="space-y-6">
+          <h2 class="text-xl font-semibold text-green-400">4. Infrastructure & Connectivity</h2>
+          <p class="text-gray-300">These questions determine advanced networking components needed.</p>
+
+          <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
+            <label class="inline-flex items-center font-medium text-gray-300">
+              <input type="checkbox" data-inf-field="needsWalkieTalkieInterface" ${inf.needsWalkieTalkieInterface ? 'checked' : ''} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
+              <span class="ml-2">Interface with Walkie-Talkies?</span>
+            </label>
+            ${inf.needsWalkieTalkieInterface ? `<p class="text-xs text-red-400 mt-2">Adds RDX Interface to BOM</p>` : ''}
+          </div>
+
+          <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
+            <label class="block font-medium text-gray-300 mb-2">Connect to separate building/location (Bridge)?</label>
+            <div class="flex space-x-4 text-gray-300">
+              <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="isMultiSite" name="isMultiSite" value="no" ${inf.isMultiSite === 'no' ? 'checked' : ''} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">No</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="isMultiSite" name="isMultiSite" value="yes" ${inf.isMultiSite === 'yes' ? 'checked' : ''} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">Yes</span>
+              </label>
+            </div>
+            ${inf.isMultiSite === 'yes' ? `<p class="text-xs text-red-400 mt-2">Adds Bridge Interface to BOM</p>` : ''}
+          </div>
+
+          <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
+            <label class="block font-medium text-gray-300 mb-2">Furthest point over 150ft/50m from rack?</label>
+            <div class="flex space-x-4 text-gray-300">
+              <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="farDistance" name="farDistance" value="no" ${inf.farDistance === 'no' ? 'checked' : ''} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">No</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="farDistance" name="farDistance" value="yes" ${inf.farDistance === 'yes' ? 'checked' : ''} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">Yes</span>
+              </label>
+            </div>
+            ${isFarDistance ? `
+              <p class="text-xs text-red-400 mt-3">Requires fiber link and additional switch at far end if devices are present there.</p>
+              <div class="space-y-2 mt-2 text-gray-300">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" data-inf-field="wirelessAtFar" ${inf.wirelessAtFar ? 'checked' : ''} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
+                  <span class="ml-2 text-sm">Wireless coverage needed at far location</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" data-inf-field="wiredAtFar" ${inf.wiredAtFar ? 'checked' : ''} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
+                  <span class="ml-2 text-sm">Wired devices needed at far location</span>
+                </label>
+              </div>
+              ${(inf.wiredAtFar || inf.wirelessAtFar) ? '<p class="text-xs text-red-400 mt-2">Adds SW18 (main), SFOM Fiber Modules, and an SW8 (remote) to BOM.</p>' : '<p class="text-xs text-yellow-400 mt-2">Adds SW18 (main) and SFOM Fiber Modules for future expansion. No remote switch added yet.</p>'}
+            ` : ''}
+          </div>
+
+          <div class="flex-between pt-4 border-t border-gray-700">
+            <button data-action="set-step" data-step="3" class="btn btn-secondary px-4 py-2">← Back</button>
+            <button data-action="set-step" data-step="5" class="btn btn-primary px-4 py-2 hover:bg-green-700">Review & Export →</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStep5Review(productsToDisplay, totals){
+      const validation = runValidationChecks(productsToDisplay);
+
+      const fullListWithCounts = initialProducts.map(p => ({
+        ...p,
+        count: productsToDisplay.find(item => item.id === p.id)?.count || 0
+      })).filter(p => p.id !== 'HSETCUST');
+
+      const sortedProducts = fullListWithCounts.sort((a, b) => a.name.localeCompare(b.name));
+
+      const groups = productGroups.map(g => {
+        if (g.name === 'Customer Supplied') return null;
+        return {
+          ...g,
+          products: sortedProducts.filter(p => p.group === g.name)
+        };
+      }).filter(Boolean);
+
+      const getImageTag = (id) => {
+        const url = imageMap[id];
+        if (!url) return '';
+        const altText = getProduct(id)?.name || 'Product';
+        return `<img loading="lazy" src="${url}" alt="${altText}" class="img-bom-thumb hidden sm:block bg-white p-1" onerror="this.style.display='none'" />`;
+      };
+
+      return `
+        <div class="space-y-6">
+          <h2 class="text-xl font-semibold text-green-400">5. Final Bill of Materials</h2>
+          <div class="p-4 border-l-4 border-green-500 bg-gray-700 rounded-lg">
+            <p class="text-sm text-gray-300">Review and manually adjust quantities if needed.</p>
+            <div class="mt-2 font-medium text-sm text-gray-300">Project: <strong>${escapeHtml(State.projectDetails.configName||'UNNAMED')}</strong> by <strong>${escapeHtml(State.projectDetails.userName||'DESIGNER')}</strong></div>
+          </div>
+          <div class="p-4 shadow rounded-lg ${validation.status==='PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
+            <h3 class="lg:text-lg font-bold flex items-center ${validation.status==='PASS' ? 'text-green-400' : 'text-red-400'}">
+              <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${validation.status==='PASS' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}</svg>
+              Validation: ${validation.status}
+            </h3>
+            ${validation.validation_issues.length ? `<ul class="list-disc ml-5 ${validation.status==='PASS' ? 'text-green-300' : 'text-red-300'} text-sm mt-2">${validation.validation_issues.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>` : ''}
+          </div>
+          <div class="space-y-6">
+            ${groups.map(group=>`
+              <div class="space-y-3">
+                <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${group.icon==='Bell'? '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>' : ''}
+                    ${group.icon==='Link2'? '<path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 0 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/>' : ''}
+                    ${group.icon==='Zap'? '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' : ''}
+                    ${group.icon==='Headset'? '<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>' : ''}
+                  </svg>
+                  ${group.name}
+                </h3>
+                ${group.products.map(item=>`
+                  <div class="flex items-center justify-between p-3 ${item.count>0 ? 'bg-gray-700 border-gray-600' : 'bg-gray-800 border-gray-700 opacity-70'} border rounded-lg shadow-sm">
+                    <div class="flex-1 min-w-0 flex items-center">
+                      ${getImageTag(item.id)}
+                      <div>
+                        <div class="font-semibold ${item.count>0 ? 'text-gray-100' : 'text-gray-400'}">${escapeHtml(item.name)} <span class="text-xs text-gray-400">(${escapeHtml(item.sku||'')})</span></div>
+                        <div class="text-xs ${item.count>0 ? 'text-green-400' : 'text-gray-500'}">${escapeHtml(item.role||'')}</div>
+                        <div class="text-sm font-bold text-indigo-400 mt-1">${fmt(item.price||0)}</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2 ml-4">
+                      <button data-action="dec-item" data-id="${item.id}" class="p-1 text-red-400 border border-red-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-red-900 text-xl font-bold leading-none">−</button>
+                      <span class="text-lg font-bold w-12 text-center ${item.count===0 ? 'text-gray-500' : 'text-gray-100'}">${item.count||0}</span>
+                      <button data-action="inc-item" data-id="${item.id}" class="p-1 text-green-400 border border-green-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-green-900 text-xl font-bold leading-none">+</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('')}
+          </div>
+          <div class="flex justify-between space-x-4 pt-4 border-t border-gray-700">
+            <button data-action="set-step" data-step="4" class="btn btn-secondary px-4 py-2">← Back</button>
+            <button data-action="save-config" class="btn bg-indigo-600 hover:bg-indigo-700 text-white py-3">Save Configuration</button>
+            <button data-action="print" class="btn btn-primary py-3 hover:bg-green-700">Download PDF</button>
+          </div>
+        </div>`;
+    }
+
+    function renderSavedConfigs(totalCost){
+      return `
+        <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
+          <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+            Saved (${State.savedConfigs.length})
+          </h2>
+          <div class="space-y-3">
+            ${State.savedConfigs.length===0 ? `<p class="text-gray-400">No saved configurations</p>` : State.savedConfigs.map(cfg=>`
+              <div class="flex-between p-3 bg-gray-700 border border-gray-600 rounded-lg">
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-gray-100">${escapeHtml(cfg.name)}</p>
+                  <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost||0)}</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button data-action="load-config" data-id="${cfg.id}" class="text-green-400 hover:text-green-300 text-sm">Load</button>
+                  <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    function renderSystemAlert(){
+      if (!State.systemAlert.show) return '';
+      let style = 'bg-yellow-900 text-yellow-300 border-yellow-600';
+      let buttonColor = 'bg-yellow-600 hover:bg-yellow-700';
+      if (State.systemAlert.type==='error'){ style='bg-red-900 text-red-300 border-red-600'; buttonColor='bg-red-600 hover:bg-red-700'; }
+      if (State.systemAlert.type==='success'){ style='bg-green-900 text-green-300 border-green-700'; buttonColor='bg-green-600 hover:bg-green-700'; }
+      if (State.systemAlert.type==='confirm'){ style='bg-green-900 text-green-300 border-green-700'; buttonColor='bg-green-600 hover:bg-green-700'; }
+      const isConfirm = State.systemAlert.type==='confirm';
+      return `
+        <div class="modal-backdrop z-modal">
+          <div class="p-6 rounded-xl shadow-2xl w-full max-w-sm ${style} border-l-4">
+            <p class="font-semibold mb-4">${escapeHtml(State.systemAlert.message||'')}</p>
+            <div class="flex ${isConfirm? 'justify-end space-x-3' : 'justify-end'}">
+              ${isConfirm ? `<button data-action="alert-cancel" class="px-4 py-2 text-sm bg-gray-600 text-gray-200 rounded border border-gray-500 hover:bg-gray-500">Cancel</button>` : ''}
+              <button data-action="alert-confirm" class="px-4 py-2 text-sm text-white rounded ${buttonColor}">${isConfirm? 'Confirm' : 'OK'}</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderQuantityControl(id, value) {
+      return `
+        <div class="bubble-control" data-field-id="${id}">
+          <button data-loc-action="dec-qty" data-id="${id}" class="bubble-minus"><span class="text-2xl leading-none">-</span></button>
+          <span id="${id}" class="bubble-count">${value}</span>
+          <button data-loc-action="inc-qty" data-id="${id}" class="bubble-plus"><span class="text-2xl leading-none">+</span></button>
+        </div>
+      `;
+    }
+
+    function getModalImageTag(productId) {
+        const url = imageMap[productId];
+        if (!url) return '';
+        const altText = getProduct(productId)?.name || 'Product';
+        return `<img loading="lazy" src="${url}" alt="${altText}" class="img-modal-icon" onerror="this.style.display='none'">`;
+    }
+
+    function openLocationModal(location = null){
+      State.editingLocationId = location ? location.id : null;
+      State.isLocationModalOpen = true;
+      renderApp();
+
+      const nameInput = byId('loc-name');
+      const nameError = byId('loc-name-error');
+      const saveBtn = byId('save-location-btn');
+      const baseMountSelect = byId('loc-basemount');
+      const hdCheckbox = byId('loc-hd');
+      const existingHeadsetsCheckbox = byId('loc-existing-headsets');
+
+      if (nameError) nameError.style.display = 'none';
+
+      if (location) {
+        if(nameInput) nameInput.value = location.name;
+        ['loc-keypanelcount', 'loc-wired', 'loc-wireless', 'loc-wallstation', 'loc-beacon', 'h-std1', 'h-std2', 'h-comf1', 'h-comf2', 'h-handset'].forEach(id => {
+            const el = byId(id);
+            let val = 0;
+            if (id === 'loc-keypanelcount') val = location.keyPanelCount || 0;
+            else if (id === 'loc-wired') val = location.wiredCount || 0;
+            else if (id === 'loc-wireless') val = location.wirelessCount || 0;
+            else if (id === 'loc-wallstation') val = location.wallStationCount || 0;
+            else if (id === 'loc-beacon') val = location.beaconCount || 0;
+            else if (id === 'h-std1') val = location.headsetSplit?.stdOneEar || 0;
+            else if (id === 'h-std2') val = location.headsetSplit?.stdDualEar || 0;
+            else if (id === 'h-comf1') val = location.headsetSplit?.comfortOneEar || 0;
+            else if (id === 'h-comf2') val = location.headsetSplit?.comfortDualEar || 0;
+            else if (id === 'h-handset') val = location.headsetSplit?.handset || 0;
+            if (el) el.innerText = val;
+        });
+        if(baseMountSelect) baseMountSelect.value = location.keyPanelMount || 'desktop';
+        if(hdCheckbox) hdCheckbox.checked = location.isHeavyDuty || false;
+        if(existingHeadsetsCheckbox) existingHeadsetsCheckbox.checked = (location.headsetSplit?.customerSupplied > 0);
+        if(saveBtn) saveBtn.textContent = 'Save Changes';
+      } else {
+        if(nameInput) nameInput.value = '';
+        ['loc-keypanelcount', 'loc-wired', 'loc-wireless', 'loc-wallstation', 'loc-beacon', 'h-std1', 'h-std2', 'h-comf1', 'h-comf2', 'h-handset'].forEach(id => {
+          const el = byId(id);
+          if (el) el.innerText = '0';
+        });
+        if(baseMountSelect) baseMountSelect.value = 'desktop';
+        if(hdCheckbox) hdCheckbox.checked = false;
+        if(existingHeadsetsCheckbox) existingHeadsetsCheckbox.checked = false;
+        if(saveBtn) saveBtn.textContent = 'Add Location';
+      }
+
+      setupLocationModalFieldReactivity();
+    }
+
+    function renderLocationModal(){
+      const isEditing = State.editingLocationId !== null;
+
+      const readValue = (id) => {
+          const location = isEditing ? State.locations.find(l => l.id === State.editingLocationId) : null;
+          if (location) {
+              if (id === 'loc-keypanelcount') return location.keyPanelCount || 0;
+              if (id === 'loc-wired') return location.wiredCount || 0;
+              if (id === 'loc-wireless') return location.wirelessCount || 0;
+              if (id === 'loc-wallstation') return location.wallStationCount || 0;
+              if (id === 'loc-beacon') return location.beaconCount || 0;
+              if (id === 'h-std1') return location.headsetSplit?.stdOneEar || 0;
+              if (id === 'h-std2') return location.headsetSplit?.stdDualEar || 0;
+              if (id === 'h-comf1') return location.headsetSplit?.comfortOneEar || 0;
+              if (id === 'h-comf2') return location.headsetSplit?.comfortDualEar || 0;
+              if (id === 'h-handset') return location.headsetSplit?.handset || 0;
+          }
+          return 0;
+      };
+
+      return `
+        <div class="modal-backdrop z-modal">
+          <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 text-green-400">${isEditing ? 'Edit Location' : 'Add Location'}</h3>
+            <div class="space-y-4 overflow-y-auto pr-2" style="max-height: 60vh;">
+              <input id="loc-name" type="text" placeholder="Location Name" class="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" />
+              <p id="loc-name-error" class="text-sm text-red-400 font-medium" style="display: none;">Location Name required</p>
+
+              <h4 class="font-semibold text-gray-200 mt-2">Device Counts</h4>
+
+              <div class="grid md:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                    <img loading="lazy" src="${imageMap.GBPX}" alt="Wired Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wired:
+                  </label>
+                  ${renderQuantityControl('loc-wired', readValue('loc-wired'))}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                    <img loading="lazy" src="${imageMap.WBPX}" alt="Wireless Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wireless:
+                  </label>
+                  ${renderQuantityControl('loc-wireless', readValue('loc-wireless'))}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                     <img loading="lazy" src="${imageMap.WSX}" alt="Wall Station" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wall:
+                  </label>
+                  ${renderQuantityControl('loc-wallstation', readValue('loc-wallstation'))}
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-4 gap-3 mt-4 items-end">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                    <img loading="lazy" src="${imageMap.MCXD}" alt="Key Panel" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Key Panels:
+                  </label>
+                  ${renderQuantityControl('loc-keypanelcount', readValue('loc-keypanelcount'))}
+                </div>
+                <div id="loc-mount-wrap" style="visibility:hidden;">
+                  <label class="block text-sm font-medium mb-1 text-gray-300">Mount:</label>
+                  <select id="loc-basemount" class="w-full p-2 border border-gray-600 rounded h-10 bg-gray-700 text-gray-300">
+                    <option value="desktop">Desktop</option>
+                    <option value="rackmount">Rackmount</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-4 gap-3 mt-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                    <img loading="lazy" src="${imageMap.BCON}" alt="Beacon" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Beacons:
+                  </label>
+                  ${renderQuantityControl('loc-beacon', readValue('loc-beacon'))}
+                </div>
+              </div>
+
+              <div id="loc-hd-wrap" class="hidden items-center p-2 bg-gray-700 border border-yellow-600 rounded-md">
+                <input id="loc-hd" type="checkbox" class="h-4 w-4 mr-2 text-yellow-500 bg-gray-600 border-gray-500 rounded focus:ring-yellow-500" />
+                <span class="text-sm text-yellow-300 flex items-center">Use <strong class="mx-1">Heavy Duty/Sports</strong> Wireless <img loading="lazy" src="${imageMap.WBPXHD}" alt="Sport Beltpack" class="w-8 h-8 object-contain ml-1" onerror="this.style.display='none'"></span>
+              </div>
+
+              <h4 class="font-semibold text-gray-200 mt-2">Headset Allocation <span id="loc-headset-total" class="text-xs text-gray-400"></span></h4>
+              <p id="loc-headset-remaining" class="text-sm font-medium text-red-400">Remaining: 0</p>
+              <p id="loc-headset-warning" class="text-xs font-medium text-red-400" style="display: none;">Allocation required or check Customer Supplied</p>
+
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET1E}" alt="Single Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Single:</label>
+                  ${renderQuantityControl('h-std1', readValue('h-std1'))}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET2E}" alt="Dual Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Dual:</label>
+                  ${renderQuantityControl('h-std2', readValue('h-std2'))}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC1E}" alt="Comfort Single" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Single:</label>
+                  ${renderQuantityControl('h-comf1', readValue('h-comf1'))}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC2E}" alt="Comfort Dual" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Dual:</label>
+                  ${renderQuantityControl('h-comf2', readValue('h-comf2'))}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.TELH}" alt="Handset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Handset:</label>
+                  ${renderQuantityControl('h-handset', readValue('h-handset'))}
+                </div>
+              </div>
+
+              <div id="loc-customer-supplied-wrap" class="hidden items-center p-2 bg-gray-700 border border-indigo-500 rounded-md mt-4">
+                <input id="loc-existing-headsets" type="checkbox" class="h-4 w-4 mr-2 text-indigo-500 bg-gray-600 border-gray-500 rounded focus:ring-indigo-500" />
+                <span class="text-sm text-indigo-300">Customer Supplied Headsets cover remaining</span>
+              </div>
+
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+              <button data-action="close-location-modal" class="btn btn-secondary px-4 py-2">Cancel</button>
+              <button data-action="save-location" id="save-location-btn" class="btn btn-primary px-4 py-2 hover:bg-green-700">Add Location</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderPrintSection(productsToDisplay, totals){
+      const { equipmentCost, labor, programming, grand } = totals;
+      const validation = runValidationChecks(productsToDisplay);
+      const today = new Date().toLocaleDateString();
+
+      const filteredList = productsToDisplay.filter(p => p.count > 0);
+
+      const groups = productGroups.map(g => {
+        if (g.name === 'Customer Supplied') return null;
+        const groupProducts = filteredList.filter(p => p.group === g.name).sort((a,b) => a.name.localeCompare(b.name));
+        if (groupProducts.length === 0) return null;
+        return { name: g.name, products: groupProducts };
+      }).filter(Boolean);
+
+      return `
+        <div class="print-only">
+          <div class="flex-between border-b pb-2 mb-8">
+            <div>
+              <h1 class="text-3xl font-extrabold text-green-800">Green-GO System Quote</h1>
+              <img src="${imageMap.CRC_LOGO}" alt="Logo" class="h-8 w-auto object-contain mt-2">
+              <div class="mt-4 text-sm">
+                <p><strong>Project:</strong> ${escapeHtml(State.projectDetails.configName||'N/A')}</p>
+                <p><strong>Designer:</strong> ${escapeHtml(State.projectDetails.userName||'N/A')}</p>
+                <p><strong>Date:</strong> ${today}</p>
+              </div>
+            </div>
+            <img src="https://sspro-installs.github.io/media-assets/branding/SS-Pro-Logo-Set-Black.png" alt="S&S Logo Print" class="h-16 w-auto object-contain">
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Bill of Materials</h2>
+          <table class="w-full text-sm" style="border-collapse: collapse;">
+            <thead>
+              <tr class="border-b-2 border-gray-300">
+                <th class="text-left p-2">SKU</th>
+                <th class="text-left p-2">Product Name</th>
+                <th class="text-right p-2">Qty</th>
+                <th class="text-right p-2">Unit Price</th>
+                <th class="text-right p-2">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${groups.map(g => `
+                <tr>
+                  <td colspan="5" class="font-bold text-lg pt-4 pb-1 border-b">${g.name}</td>
+                </tr>
+                ${g.products.map(p => `
+                  <tr class="border-b border-gray-200">
+                    <td class="p-2">${escapeHtml(p.sku)}</td>
+                    <td class="p-2">${escapeHtml(p.name)}<br><span class="text-xs text-gray-500">${escapeHtml(p.role)}</span></td>
+                    <td class="text-right p-2">${p.count}</td>
+                    <td class="text-right p-2">${fmt(p.price)}</td>
+                    <td class="text-right p-2">${fmt(p.price * p.count)}</td>
+                  </tr>
+                `).join('')}
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="max-w-sm ml-auto mt-8 space-y-3">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Quote Summary</h2>
+            <div class="flex-between font-semibold text-lg border-b pb-2">
+              <span>Equipment Total:</span>
+              <span class="text-green-600">${fmt(equipmentCost)}</span>
+            </div>
+            <div class="flex-between">
+              <span>Labor (${(LABOR_RATE*100).toFixed(0)}%):</span>
+              <span class="font-medium">${fmt(labor)}</span>
+            </div>
+            <div class="flex-between">
+              <span>Programming (${(PROGRAMMING_SETUP_RATE*100).toFixed(0)}%):</span>
+              <span class="font-medium">${fmt(programming)}</span>
+            </div>
+            <div class="flex-between font-extrabold text-2xl mt-4 border-t-4 pt-4 border-green-700">
+              <span>GRAND TOTAL:</span>
+              <span class="text-red-600">${fmt(grand)}</span>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-4 border-t">
+            <h3 class="font-bold text-lg">System Validation</h3>
+            <div class="p-4 ${validation.status==='PASS' ? 'bg-green-100 border-green-700' : 'bg-red-50 border-red-500'} border-l-4 rounded-lg mt-2">
+              <p><strong>Status: ${validation.status}</strong></p>
+              ${validation.validation_issues.length ? `<ul class="list-disc ml-5 text-red-700 text-sm mt-2">${validation.validation_issues.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleGlobalClick(e){
+      const target = e.target.closest('[data-action]');
+      if (!target) return;
+
+      const action = target.dataset.action;
+
+      if (action === 'set-step'){
+        const newStep = parseInt(target.dataset.step, 10);
+        if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName)){
+          showAlert('Please complete Project Setup first.', 'warning');
+          return;
+        }
+        State.step = newStep;
+        renderApp();
+      }
+
+      if (action === 'start-step2-check'){
+        State.step = 3;
+        renderApp();
+      }
+
+      if (action === 'go-step4'){
+        State.step = 4;
+        State.isFinalEditMode = false;
+        renderApp();
+      }
+
+      if (action === 'skip-to-manual-check'){
+        State.isFinalEditMode = true;
+        State.step = 5;
+        State.locations = [];
+        State.configProducts = initialProducts.reduce((acc, p) => { acc[p.id] = State.configProducts[p.id] || 0; return acc; }, {});
+        renderApp();
+      }
+
+      if (action === 'open-location-modal'){
+        openLocationModal();
+      }
+
+      if (action === 'close-location-modal'){
+        State.isLocationModalOpen = false;
+        renderApp();
+      }
+
+      if (action === 'save-location'){
+          const nameInput = byId('loc-name');
+          const name = nameInput ? nameInput.value.trim() : '';
+          const nameError = byId('loc-name-error');
+
+          if (!name){
+              if(nameError) nameError.style.display = 'block';
+              return;
+          }
+          if(nameError) nameError.style.display = 'none';
+
+          const locData = {
+              name: name,
+              keyPanelCount: parseInt(byId('loc-keypanelcount')?.innerText || '0', 10),
+              keyPanelMount: byId('loc-basemount')?.value || 'desktop',
+              wiredCount: parseInt(byId('loc-wired')?.innerText || '0', 10),
+              wirelessCount: parseInt(byId('loc-wireless')?.innerText || '0', 10),
+              wallStationCount: parseInt(byId('loc-wallstation')?.innerText || '0', 10),
+              beaconCount: parseInt(byId('loc-beacon')?.innerText || '0', 10),
+              isHeavyDuty: byId('loc-hd')?.checked || false,
+              headsetSplit: {
+                  stdOneEar: parseInt(byId('h-std1')?.innerText || '0', 10),
+                  stdDualEar: parseInt(byId('h-std2')?.innerText || '0', 10),
+                  comfortOneEar: parseInt(byId('h-comf1')?.innerText || '0', 10),
+                  comfortDualEar: parseInt(byId('h-comf2')?.innerText || '0', 10),
+                  handset: parseInt(byId('h-handset')?.innerText || '0', 10),
+                  customerSupplied: 0
+              }
+          };
+
+          const totalDevices = (locData.keyPanelCount + locData.wiredCount + locData.wirelessCount + locData.wallStationCount);
+          const totalHeadsetsAllocated = (locData.headsetSplit.stdOneEar + locData.headsetSplit.stdDualEar + locData.headsetSplit.comfortOneEar + locData.headsetSplit.comfortDualEar + locData.headsetSplit.handset);
+          const isCustomerSuppliedChecked = byId('loc-existing-headsets')?.checked || false;
+          const headsetWarning = byId('loc-headset-warning');
+
+          if (totalHeadsetsAllocated < totalDevices && !isCustomerSuppliedChecked){
+              if(headsetWarning) headsetWarning.style.display = 'block';
+              return;
+          }
+          if(headsetWarning) headsetWarning.style.display = 'none';
+
+          if (isCustomerSuppliedChecked) {
+              locData.headsetSplit.customerSupplied = Math.max(0, totalDevices - totalHeadsetsAllocated);
+          } else {
+              locData.headsetSplit.customerSupplied = 0;
+          }
+
+          if (State.editingLocationId) {
+              const index = State.locations.findIndex(l => l.id === State.editingLocationId);
+              if (index > -1) State.locations[index] = { ...State.locations[index], ...locData };
+          } else {
+              State.locations.push({ ...locData, id: Date.now() });
+          }
+
+          State.isLocationModalOpen = false;
+          State.isFinalEditMode = false;
+          renderApp();
+      }
+
+      if (action === 'edit-location'){
+        const locId = parseInt(target.dataset.id, 10);
+        const loc = State.locations.find(l => l.id === locId);
+        if (loc) openLocationModal(loc);
+      }
+
+      if (action === 'delete-location'){
+        const locId = parseInt(target.dataset.id, 10);
+        State.locations = State.locations.filter(l => l.id !== locId);
+        State.isFinalEditMode = false;
+        renderApp();
+      }
+
+      if (action === 'inc-item'){
+        const id = target.dataset.id;
+        State.configProducts[id] = (State.configProducts[id] || 0) + 1;
+        if(!State.isFinalEditMode) State.isFinalEditMode = true;
+        renderApp();
+      }
+
+      if (action === 'dec-item'){
+        const id = target.dataset.id;
+        State.configProducts[id] = Math.max(0, (State.configProducts[id] || 0) - 1);
+         if(!State.isFinalEditMode) State.isFinalEditMode = true;
+        renderApp();
+      }
+
+      if (action === 'alert-confirm'){
+        if(State.systemAlert.onConfirm) State.systemAlert.onConfirm();
+        State.systemAlert = { show:false };
+        renderApp();
+      }
+
+      if (action === 'alert-cancel'){
+        if(State.systemAlert.onCancel) State.systemAlert.onCancel();
+        State.systemAlert = { show:false };
+        renderApp();
+      }
+
+      if (action === 'save-config'){
+        const finalProductsToSave = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
+        const { grand } = computeFromProducts(finalProductsToSave);
+        const validationResult = runValidationChecks(Object.entries(finalProductsToSave).map(([id,count])=>({ ...getProduct(id), count })));
+
+        if (!State.projectDetails.configName || !State.projectDetails.userName) {
+            showAlert('Please enter a Configuration Name and Your Name in Step 2 before saving.', 'warning');
+            State.step = 2;
+            renderApp();
+            const configNameInput = byId('configName');
+            const userNameInput = byId('userName');
+            if(configNameInput && !State.projectDetails.configName) configNameInput.focus();
+            else if(userNameInput && !State.projectDetails.userName) userNameInput.focus();
+            return;
+        }
+
+        const newConfig = {
+          id: Date.now(),
+          name: State.projectDetails.configName,
+          user: State.projectDetails.userName,
+          products: { ...finalProductsToSave },
+          locations: [ ...State.locations ],
+          infrastructure: { ...State.infrastructureDetails },
+          totalCost: grand,
+          validationStatus: validationResult.status
+        };
+        State.savedConfigs.unshift(newConfig);
+        if (State.savedConfigs.length > 10) {
+            State.savedConfigs = State.savedConfigs.slice(0, 10);
+        }
+        saveConfigs();
+        showAlert('Configuration Saved!', 'success');
+      }
+
+      if (action === 'load-config'){
+        const cfgId = parseInt(target.dataset.id, 10);
+        const cfg = State.savedConfigs.find(c => c.id === cfgId);
+        if (cfg) {
+          State.projectDetails.configName = cfg.name;
+          State.projectDetails.userName = cfg.user;
+          State.locations = JSON.parse(JSON.stringify(cfg.locations || []));
+          const loadedProducts = cfg.products || {};
+          State.configProducts = initialProducts.reduce((acc, p) => {
+              acc[p.id] = loadedProducts[p.id] || 0;
+              return acc;
+          }, {});
+           State.infrastructureDetails = {
+              isMultiSite: cfg.infrastructure?.isMultiSite || 'no',
+              farDistance: cfg.infrastructure?.farDistance || 'no',
+              wirelessAtFar: cfg.infrastructure?.wirelessAtFar || false,
+              wiredAtFar: cfg.infrastructure?.wiredAtFar || false,
+              needsWalkieTalkieInterface: cfg.infrastructure?.needsWalkieTalkieInterface || false,
+          };
+          State.step = 5;
+          State.isFinalEditMode = true;
+          showAlert(`Loaded: ${cfg.name}`, 'success');
+        } else {
+           showAlert('Could not load configuration.', 'error');
+        }
+      }
+
+      if (action === 'delete-saved'){
+        const id = parseInt(target.dataset.id, 10);
+        const name = target.dataset.name || 'this configuration';
+        showAlert(`Delete '${name}'? This cannot be undone.`, 'confirm', ()=>{
+          State.savedConfigs = State.savedConfigs.filter(c => c.id !== id);
+          saveConfigs();
+          renderApp();
+        });
+      }
+
+      if (action === 'print'){if (!State.projectDetails.configName || !State.projectDetails.userName) {
             showAlert('Please enter Project Name and Designer Name in Step 2 before printing.', 'warning');
             State.step = 2;
             renderApp();
@@ -192,3 +1898,4 @@ if (!State.projectDetails.configName || !State.projectDetails.userName) {
   </script>
 </body>
 </html>
+
