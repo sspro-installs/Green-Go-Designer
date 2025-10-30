@@ -270,7 +270,7 @@
             color: #d1d5db;
             padding: 1.5rem;
             border-radius: 1.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 50px-12px rgba(0,0,0,0.5);
             width: 100%;
             max-width: 48rem;
             max-height: 90vh;
@@ -353,9 +353,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
     </style>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-</head>
+    </head>
 <body class="bg-gray-900 min-h-screen">
 
     <div id="app" class="container"></div>
@@ -365,11 +363,11 @@
         
         // --- 1. CONFIGURATION ---
         
-        // PASTE YOUR FORMPSREE URL HERE
+        // Your Formspree URL
         const FORM_ENDPOINT = "https://formspree.io/f/mqagbger";
 
-        // UPDATE THIS to the raw GitHub URL of your pricing.json file
-        const PRICING_URL = "https://raw.githubusercontent.com/sspro-installs/Green-Go-Designer/main/pricing.json"; // <-- !!! UPDATE THIS URL !!!
+        // Your Pricing.json URL (Corrected)
+        const PRICING_URL = "https://raw.githubusercontent.com/sspro-installs/Green-Go-Designer/main/pricing.json";
 
         // Default rates (will be overwritten by pricing.json)
         let LABOR_RATE = 0.20;
@@ -1321,7 +1319,7 @@
             </div>`;
         }
         
-        // This is the content for the PDF
+        // This is the content for the PDF/Email
         function renderPrintSection(productsToDisplay, totals) {
             const { equipmentCost, labor, programming, grand } = totals;
             const validation = runValidationChecks(productsToDisplay);
@@ -1813,6 +1811,7 @@
 
         // --- 9. NEW EMAIL & PDF FUNCTIONS ---
         
+        // FINAL "EMAIL DESIGN" FUNCTION (Sends key/value pairs, 100% free)
         async function handleSaveAndNotify() {
             if (State.isSending) return;
 
@@ -1826,71 +1825,52 @@
             State.isSending = true;
             renderApp(); // Re-render to show "Sending..."
             
-            showAlert('Generating PDF and sending email...', 'info');
+            showAlert('Sending email...', 'info');
 
             try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const printContent = document.querySelector('.print-only');
-                
-                // Temporarily make print content visible for html2canvas
-                printContent.style.display = 'block';
-                printContent.style.backgroundColor = 'white';
-                printContent.style.color = 'black';
+                // --- 1. Generate the form data ---
+                const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
+                const { list, equipmentCost, labor, programming, grand } = computeFromProducts(finalProductsMap);
+                const filteredList = list.filter(p => p.count > 0 && p.id !== 'HSETCUST').sort((a, b) => a.name.localeCompare(b.name));
 
-                const canvas = await html2canvas(printContent, {
-                    scale: 2,
-                    logging: false,
-                    useCORS: true
-                });
-                
-                // Hide print content again
-                printContent.style.display = 'none';
-
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210; // A4 width in mm
-                const pageHeight = 297; // A4 height in mm
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
-
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-
-                while (heightLeft > 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-                
-                const pdfBlob = pdf.output('blob');
-                const fileName = `GreenGO_Quote_${State.projectDetails.configName.replace(/ /g, '_')}.pdf`;
-
-                // Prepare form data
                 const formData = new FormData();
-                formData.append('attachment', pdfBlob, fileName);
+                
+                // Basic Info
                 formData.append('Config_Name', State.projectDetails.configName);
                 formData.append('Designer', State.projectDetails.userName);
                 formData.append('Email', State.projectDetails.userEmail);
-                
-                // This is the special field for Formspree to set the Reply-To header
                 if (State.projectDetails.userEmail) {
                     formData.append('_replyto', State.projectDetails.userEmail);
                 }
+                formData.append('---', '---'); // Separator
 
-                // Send to Formspree
+                // Add each line item
+                let itemIndex = 1;
+                filteredList.forEach(p => {
+                    const lineItem = `(x${p.count}) ${escapeHtml(p.name)} --- ${fmt(p.price * p.count)}`;
+                    formData.append(`Item_${itemIndex.toString().padStart(2, '0')}`, lineItem);
+                    itemIndex++;
+                });
+
+                // Add Summary
+                formData.append('--- Summary ---', '---'); // Separator
+                formData.append('Equipment_Total', fmt(equipmentCost));
+                formData.append('Labor', fmt(labor));
+                formData.append('Programming', fmt(programming));
+                formData.append('GRAND_TOTAL', fmt(grand));
+
+                // --- 2. Send the Form Data ---
                 const response = await fetch(FORM_ENDPOINT, {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
 
                 if (response.ok) {
                     showAlert('Design saved and email sent successfully!', 'success');
                 } else {
+                    const errorData = await response.json();
+                    console.error('Formspree error:', errorData);
                     throw new Error('Formspree submission failed');
                 }
 
