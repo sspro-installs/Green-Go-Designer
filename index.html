@@ -811,12 +811,11 @@
                         <div class="flex-between"><span>Total Headsets:</span><span>${headsetsCount || 0}</span></div>
                     </div>
                     ${costSection}
+                    <button data-action="reset-system" class="w-full mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg">Reset System</button>
                 </div>
                 ${renderSavedConfigs(equipmentCost)}
             </div>`;
         }
-        <button data-action="reset-system" class="w-full mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg">Reset System</button>
-
         function renderApp() {
             if (State.isFinalEditMode && State.step === 1) State.step = 5;
             
