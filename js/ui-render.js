@@ -31,7 +31,7 @@ function renderHeader() {
         <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
         <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
     </div>
-    <!-- EDIT: Removed inline style, changed height to h-16 (Request #1) -->
+    <!-- EDIT 1 (Last time): Set height to h-16 (4rem) to match left column height. flex-between handles right-justification. (Request #1) -->
     <img src="${imageMap.SS_LOGO}" alt="S&S Logo" class="h-16 w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
 </div>`;
 }
@@ -50,7 +50,7 @@ function renderProgress() {
     ${steps.map((s, idx) => `
     <div data-action="set-step" data-step="${idx + 1}"
         class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${
-            // EDIT: Modified logic to only block *future* steps (Request #2)
+            // EDIT 2 (Last time): Modified logic to only block *future* steps (Request #2)
             idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         } ${
             idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')
@@ -62,7 +62,7 @@ function renderProgress() {
 }
 
 function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand) {
-    // EDIT: Simplified cost section text (Request #11) and added margin-top (Request #12 & #14)
+    // EDIT 3 (Last time): Simplified cost section text (Request #11) and added margin-top (Request #12 & #14)
     const costSection = equipmentCost > 0 ?
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(equipmentCost)}</span>
@@ -77,8 +77,8 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
             <span class="text-red-400">${fmt(grand)}</span>
         </div>`
         :
-        // EDIT: Added $0 values for when cost is 0 (Request #10)
-        // EDIT: Simplified text (Request #11) and added margin-top (Request #12 & #14)
+        // EDIT 4 (Last time): Added $0 values for when cost is 0 (Request #10)
+        // EDIT 5 (Last time): Simplified text (Request #11) and added margin-top (Request #12 & #14)
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(0)}</span>
         </div>
@@ -96,7 +96,7 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 <div class="space-y-8 no-print">
     <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
         <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-            <!-- EDIT: Wrapped icon in span to constrain size (Request #3) -->
+            <!-- EDIT 6 (Last time): Wrapped icon in span to constrain size (Request #3) -->
             <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
             Project Summary
         </h2>
@@ -108,7 +108,7 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
         ${costSection}
     </div>
     
-    <!-- EDIT: Added "Reset System" button card (Request #5) -->
+    <!-- EDIT 7 (Last time): Added "Reset System" button card (Request #5) -->
     <div class="card p-4">
         <button data-action="reset-system" class="w-full btn bg-red-600 hover:bg-red-700 text-white py-2">Reset Current System</button>
         <p class="text-xs text-gray-400 mt-2 text-center">This resets all quantities to zero, but keeps your project name and email.</p>
@@ -119,7 +119,7 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 }
 
 function renderApp() {
-    // EDIT: Removed line that blocked returning to Step 1 (Request #2)
+    // EDIT 8 (Last time): Removed line that blocked returning to Step 1 (Request #2)
     // if (State.isFinalEditMode && State.step === 1) State.step = 5;
 
     if (State.isCalculating) {
@@ -248,7 +248,7 @@ function renderStep2() {
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userName" type="text" value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
         </div>
         <div>
-            <!-- EDIT: Removed "(Optional, for Reply-To)" (Request #4) -->
+            <!-- EDIT 9 (Last time): Removed "(Optional, for Reply-To)" (Request #4) -->
             <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
         </div>
@@ -261,7 +261,7 @@ function renderStep3LocationManager(aggregatedBOM) {
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
-    <!-- EDIT: Added description paragraph (Request #13) -->
+    <!-- EDIT 10 (Last time): Added description paragraph (Request #13) -->
     <p class="text-sm text-gray-300 -mt-4">
         A Location represents a physical area where communication devices are needed - such as Stage, FOH, or Backstage. Defining locations helps organize your system and plan communication paths clearly.
     </p>
@@ -386,7 +386,8 @@ function renderStep5Review(productsToDisplay, totals) {
         const url = imageMap[id];
         if (!url) return "";
         const altText = getProduct(id)?.name || 'Product';
-        return `<img loading="lazy" src="${url}" alt="${altText}" class="img-bom-thumb hidden sm:block bg-white p-1" onerror="this.style.display='none'" />`;
+        // EDIT 1 (This time): Removed 'bg-white' class (Request #2)
+        return `<img loading="lazy" src="${url}" alt="${altText}" class="img-bom-thumb hidden sm:block p-1" onerror="this.style.display='none'" />`;
     };
 
     return `
@@ -399,7 +400,7 @@ function renderStep5Review(productsToDisplay, totals) {
 
     <div class="p-4 shadow rounded-lg ${validation.status === 'PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
         <h3 class="lg:text-lg font-bold flex items-center ${validation.status === 'PASS' ? 'text-green-400' : 'text-red-400'}">
-            <!-- EDIT: Wrapped icon in span and set size (Request #8) -->
+            <!-- EDIT 11 (Last time): Wrapped icon in span and set size (Request #8) -->
             <span class="w-16 h-16 mr-2">
                 ${validation.status === 'PASS' ? Icons.CheckCircle('w-16 h-16') : Icons.AlertCircle('w-16 h-16')}
             </span>
@@ -412,7 +413,7 @@ function renderStep5Review(productsToDisplay, totals) {
         ${groups.map(group => `
         <div class="space-y-3">
             <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
-                <!-- EDIT: Wrapped icon in span and set size (Request #8) -->
+                <!-- EDIT 12 (Last time): Wrapped icon in span and set size (Request #8) -->
                 <span class="w-16 h-16 mr-2">
                     ${Icons[group.icon] ? Icons[group.icon]('w-16 h-16 text-green-400') : ""}
                 </span>
@@ -428,7 +429,7 @@ function renderStep5Review(productsToDisplay, totals) {
                         <div class="text-sm font-bold text-indigo-400 mt-1">${fmt(item.price || 0)}</div>
                     </div>
                 </div>
-                <!-- EDIT: Replaced button layout with bom-control classes (Request #9) -->
+                <!-- EDIT 13 (Last time): Replaced button layout with bom-control classes (Request #9) -->
                 <div class="bom-control ml-4">
                     <button data-action="dec-item" data-id="${item.id}" class="bom-control-btn bom-minus">-</button>
                     <span class="bom-count ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
@@ -459,7 +460,7 @@ function renderSavedConfigs() {
     return `
 <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
     <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-        <!-- EDIT: Wrapped icon in span to constrain size (Request #3) -->
+        <!-- EDIT 14 (Last time): Wrapped icon in span to constrain size (Request #3) -->
         <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
         Saved (${State.savedConfigs.length})
     </h2>
@@ -470,7 +471,7 @@ function renderSavedConfigs() {
                 <p class="font-semibold text-gray-100">${escapeHtml(cfg.name)}</p>
                 <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost || 0)}</p>
             </div>
-            <!-- EDIT: Restyled Load/Delete buttons (Request #6) -->
+            <!-- EDIT 15 (Last time): Restyled Load/Delete buttons (Request #6) -->
             <div class="flex space-x-2">
                 <button data-action="load-config" data-id="${cfg.id}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Load</button>
                 <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Delete</button>
@@ -538,7 +539,7 @@ function renderLocationModal() {
         return 0;
     };
 
-    // EDIT: Increased image sizes by ~20% (Request #7)
+    // EDIT 16 (Last time): Increased image sizes by ~20% (Request #7)
     // w-10 h-10 -> w-12 h-12
     // w-8 h-8 -> w-10 h-10
     return `
@@ -706,7 +707,7 @@ function renderPrintSection(productsToDisplay, totals) {
             <span>Equipment Total:</span>
             <span class="text-green-600">${fmt(equipmentCost)}</span>
         </div>
-        <!-- EDIT: Removed percentages (Request #11) -->
+        <!-- EDIT 17 (Last time): Removed percentages (Request #11) -->
         <div class="flex-between">
             <span>Labor:</span>
             <span class="font-medium">${fmt(labor)}</span>
@@ -730,3 +731,4 @@ function renderPrintSection(productsToDisplay, totals) {
     </div>
 </div>`;
 }
+
