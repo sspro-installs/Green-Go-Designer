@@ -31,7 +31,8 @@ function renderHeader() {
         <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
         <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
     </div>
-    <img src="${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 3.5rem;" class="w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
+    <!-- EDIT: Removed inline style, changed height to h-16 (Request #1) -->
+    <img src="${imageMap.SS_LOGO}" alt="S&S Logo" class="h-16 w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
 </div>`;
 }
 
@@ -48,7 +49,12 @@ function renderProgress() {
 <div class="no-print flex justify-between mb-8">
     ${steps.map((s, idx) => `
     <div data-action="set-step" data-step="${idx + 1}"
-        class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')}">
+        class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${
+            // EDIT: Modified logic to only block *future* steps (Request #2)
+            idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+        } ${
+            idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')
+        }">
         <span class="font-medium text-sm md:text-base">Step ${idx + 1}: ${s.title}</span>
     </div>
     `).join("")}
@@ -56,24 +62,27 @@ function renderProgress() {
 }
 
 function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand) {
+    // EDIT: Simplified cost section text (Request #11) and added margin-top (Request #12 & #14)
     const costSection = equipmentCost > 0 ?
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(equipmentCost)}</span>
         </div>
-        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
+        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 mt-4 text-gray-200">Labor & Services</h3>
         <div class="space-y-2 mb-4">
-            <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost (${(LABOR_RATE * 100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(labor)}</span></div>
-            <div class="flex-between"><span class="text-sm text-gray-400">Programming (${(PROGRAMMING_SETUP_RATE * 100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
+            <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost:</span><span class="font-medium text-green-500">${fmt(labor)}</span></div>
+            <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
         </div>
         <div class="flex-between font-extrabold text-xl mt-4 border-t-4 pt-4 border-green-700">
             <span class="text-white">GRAND TOTAL:</span>
             <span class="text-red-400">${fmt(grand)}</span>
         </div>`
         :
+        // EDIT: Added $0 values for when cost is 0 (Request #10)
+        // EDIT: Simplified text (Request #11) and added margin-top (Request #12 & #14)
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(0)}</span>
         </div>
-        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
+        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 mt-4 text-gray-200">Labor & Services</h3>
         <div class="space-y-2 mb-4">
             <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
             <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
@@ -87,7 +96,8 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 <div class="space-y-8 no-print">
     <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
         <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-            ${Icons.Clipboard('w-6 h-6 mr-2 text-green-400')}
+            <!-- EDIT: Wrapped icon in span to constrain size (Request #3) -->
+            <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
             Project Summary
         </h2>
         <div class="space-y-3 mb-6 text-gray-300">
@@ -97,12 +107,20 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
         </div>
         ${costSection}
     </div>
+    
+    <!-- EDIT: Added "Reset System" button card (Request #5) -->
+    <div class="card p-4">
+        <button data-action="reset-system" class="w-full btn bg-red-600 hover:bg-red-700 text-white py-2">Reset Current System</button>
+        <p class="text-xs text-gray-400 mt-2 text-center">This resets all quantities to zero, but keeps your project name and email.</p>
+    </div>
+
     ${renderSavedConfigs()}
 </div>`;
 }
 
 function renderApp() {
-    if (State.isFinalEditMode && State.step === 1) State.step = 5;
+    // EDIT: Removed line that blocked returning to Step 1 (Request #2)
+    // if (State.isFinalEditMode && State.step === 1) State.step = 5;
 
     if (State.isCalculating) {
         document.getElementById('app').innerHTML = `<div class="text-center p-10"><h2 class="text-2xl font-semibold text-green-400">Loading Pricing...</h2></div>`;
@@ -230,7 +248,8 @@ function renderStep2() {
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userName" type="text" value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email (Optional, for Reply-To)</label>
+            <!-- EDIT: Removed "(Optional, for Reply-To)" (Request #4) -->
+            <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
         </div>
     </div>
@@ -242,6 +261,10 @@ function renderStep3LocationManager(aggregatedBOM) {
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
+    <!-- EDIT: Added description paragraph (Request #13) -->
+    <p class="text-sm text-gray-300 -mt-4">
+        A Location represents a physical area where communication devices are needed - such as Stage, FOH, or Backstage. Defining locations helps organize your system and plan communication paths clearly.
+    </p>
     <div class="flex-between pb-3 border-b border-gray-700">
         <h3 class="text-lg font-medium text-gray-300">Locations: ${State.locations.length}</h3>
         <button data-action="open-location-modal" class="btn btn-primary px-4 py-2 hover:bg-green-700">+ Add Location</button>
@@ -376,7 +399,10 @@ function renderStep5Review(productsToDisplay, totals) {
 
     <div class="p-4 shadow rounded-lg ${validation.status === 'PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
         <h3 class="lg:text-lg font-bold flex items-center ${validation.status === 'PASS' ? 'text-green-400' : 'text-red-400'}">
-            ${validation.status === 'PASS' ? Icons.CheckCircle('w-5 h-5 mr-2') : Icons.AlertCircle('w-5 h-5 mr-2')}
+            <!-- EDIT: Wrapped icon in span and set size (Request #8) -->
+            <span class="w-16 h-16 mr-2">
+                ${validation.status === 'PASS' ? Icons.CheckCircle('w-16 h-16') : Icons.AlertCircle('w-16 h-16')}
+            </span>
             Validation: ${validation.status}
         </h3>
         ${validation.validation_issues.length ? `<ul class="list-disc ml-5 ${validation.status === 'PASS' ? 'text-green-300' : 'text-red-300'} text-sm mt-2">${validation.validation_issues.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : ""}
@@ -386,7 +412,10 @@ function renderStep5Review(productsToDisplay, totals) {
         ${groups.map(group => `
         <div class="space-y-3">
             <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
-                ${Icons[group.icon] ? Icons[group.icon]('w-5 h-5 mr-2 text-green-400') : ""}
+                <!-- EDIT: Wrapped icon in span and set size (Request #8) -->
+                <span class="w-16 h-16 mr-2">
+                    ${Icons[group.icon] ? Icons[group.icon]('w-16 h-16 text-green-400') : ""}
+                </span>
                 ${group.name}
             </h3>
             ${group.products.map(item => `
@@ -399,10 +428,11 @@ function renderStep5Review(productsToDisplay, totals) {
                         <div class="text-sm font-bold text-indigo-400 mt-1">${fmt(item.price || 0)}</div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2 ml-4">
-                    <button data-action="dec-item" data-id="${item.id}" class="p-1 text-red-400 border border-red-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-red-900 text-xl font-bold leading-none">-</button>
-                    <span class="text-lg font-bold w-12 text-center ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
-                    <button data-action="inc-item" data-id="${item.id}" class="p-1 text-green-400 border border-green-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-green-900 text-xl font-bold leading-none">+</button>
+                <!-- EDIT: Replaced button layout with bom-control classes (Request #9) -->
+                <div class="bom-control ml-4">
+                    <button data-action="dec-item" data-id="${item.id}" class="bom-control-btn bom-minus">-</button>
+                    <span class="bom-count ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
+                    <button data-action="inc-item" data-id="${item.id}" class="bom-control-btn bom-plus">+</button>
                 </div>
             </div>
             `).join("")}
@@ -429,7 +459,8 @@ function renderSavedConfigs() {
     return `
 <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
     <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-        ${Icons.Clipboard('w-6 h-6 mr-2 text-green-400')}
+        <!-- EDIT: Wrapped icon in span to constrain size (Request #3) -->
+        <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
         Saved (${State.savedConfigs.length})
     </h2>
     <div class="space-y-3">
@@ -439,9 +470,10 @@ function renderSavedConfigs() {
                 <p class="font-semibold text-gray-100">${escapeHtml(cfg.name)}</p>
                 <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost || 0)}</p>
             </div>
+            <!-- EDIT: Restyled Load/Delete buttons (Request #6) -->
             <div class="flex space-x-2">
-                <button data-action="load-config" data-id="${cfg.id}" class="text-green-400 hover:text-green-300 text-sm">Load</button>
-                <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                <button data-action="load-config" data-id="${cfg.id}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Load</button>
+                <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Delete</button>
             </div>
         </div>
         `).join("")}
@@ -506,6 +538,9 @@ function renderLocationModal() {
         return 0;
     };
 
+    // EDIT: Increased image sizes by ~20% (Request #7)
+    // w-10 h-10 -> w-12 h-12
+    // w-8 h-8 -> w-10 h-10
     return `
 <div class="modal-backdrop z-modal">
     <div class="modal-content">
@@ -519,19 +554,19 @@ function renderLocationModal() {
             <div class="grid md:grid-cols-3 gap-3">
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                        <img loading="lazy" src="${imageMap.GBPX}" alt="Wired Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wired:
+                        <img loading="lazy" src="${imageMap.GBPX}" alt="Wired Beltpack" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Wired:
                     </label>
                     ${renderQuantityControl('loc-wired', readValue('loc-wired'))}
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                        <img loading="lazy" src="${imageMap.WBPX}" alt="Wireless Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wireless:
+                        <img loading="lazy" src="${imageMap.WBPX}" alt="Wireless Beltpack" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Wireless:
                     </label>
                     ${renderQuantityControl('loc-wireless', readValue('loc-wireless'))}
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                        <img loading="lazy" src="${imageMap.WSX}" alt="Wall Station" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wall:
+                        <img loading="lazy" src="${imageMap.WSX}" alt="Wall Station" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Wall:
                     </label>
                     ${renderQuantityControl('loc-wallstation', readValue('loc-wallstation'))}
                 </div>
@@ -540,7 +575,7 @@ function renderLocationModal() {
             <div class="grid md:grid-cols-4 gap-3 mt-4 items-end">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                        <img loading="lazy" src="${imageMap.MCXD}" alt="Key Panel" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Key Panels:
+                        <img loading="lazy" src="${imageMap.MCXD}" alt="Key Panel" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Key Panels:
                     </label>
                     ${renderQuantityControl('loc-keypanelcount', readValue('loc-keypanelcount'))}
                 </div>
@@ -556,7 +591,7 @@ function renderLocationModal() {
             <div class="grid md:grid-cols-4 gap-3 mt-4">
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                        <img loading="lazy" src="${imageMap.BCON}" alt="Beacon" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Beacons:
+                        <img loading="lazy" src="${imageMap.BCON}" alt="Beacon" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Beacons:
                     </label>
                     ${renderQuantityControl('loc-beacon', readValue('loc-beacon'))}
                 </div>
@@ -564,7 +599,7 @@ function renderLocationModal() {
 
             <div id="loc-hd-wrap" class="hidden items-center p-2 bg-gray-700 border border-yellow-600 rounded-md">
                 <input id="loc-hd" type="checkbox" class="h-4 w-4 mr-2 text-yellow-500 bg-gray-600 border-gray-500 rounded focus:ring-yellow-500" />
-                <span class="text-sm text-yellow-300 flex items-center">Use <strong class="mx-1">Heavy Duty/Sports</strong> Wireless <img loading="lazy" src="${imageMap.WBPXHD}" alt="Sport Beltpack" class="w-8 h-8 object-contain ml-1" onerror="this.style.display='none'"></span>
+                <span class="text-sm text-yellow-300 flex items-center">Use <strong class="mx-1">Heavy Duty/Sports</strong> Wireless <img loading="lazy" src="${imageMap.WBPXHD}" alt="Sport Beltpack" class="w-10 h-10 object-contain ml-1" onerror="this.style.display='none'"></span>
             </div>
 
             <h4 class="font-semibold text-gray-200 mt-2">Headset Allocation <span id="loc-headset-total" class="text-xs text-gray-400"></span></h4>
@@ -573,23 +608,23 @@ function renderLocationModal() {
 
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET1E}" alt="Single Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Single:</label>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET1E}" alt="Single Headset" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Std Single:</label>
                     ${renderQuantityControl('h-std1', readValue('h-std1'))}
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET2E}" alt="Dual Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Dual:</label>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET2E}" alt="Dual Headset" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Std Dual:</label>
                     ${renderQuantityControl('h-std2', readValue('h-std2'))}
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC1E}" alt="Comfort Single" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Single:</label>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC1E}" alt="Comfort Single" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Comf Single:</label>
                     ${renderQuantityControl('h-comf1', readValue('h-comf1'))}
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC2E}" alt="Comfort Dual" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Dual:</label>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC2E}" alt="Comfort Dual" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Comf Dual:</label>
                     ${renderQuantityControl('h-comf2', readValue('h-comf2'))}
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.TELH}" alt="Handset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Handset:</label>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.TELH}" alt="Handset" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Handset:</label>
                     ${renderQuantityControl('h-handset', readValue('h-handset'))}
                 </div>
             </div>
@@ -671,12 +706,13 @@ function renderPrintSection(productsToDisplay, totals) {
             <span>Equipment Total:</span>
             <span class="text-green-600">${fmt(equipmentCost)}</span>
         </div>
+        <!-- EDIT: Removed percentages (Request #11) -->
         <div class="flex-between">
-            <span>Labor (${(LABOR_RATE * 100).toFixed(0)}%):</span>
+            <span>Labor:</span>
             <span class="font-medium">${fmt(labor)}</span>
         </div>
         <div class="flex-between">
-            <span>Programming (${(PROGRAMMING_SETUP_RATE * 100).toFixed(0)}%):</span>
+            <span>Programming:</span>
             <span class="font-medium">${fmt(programming)}</span>
         </div>
         <div class="flex-between font-extrabold text-2xl mt-4 border-t-4 pt-4 border-green-700">
