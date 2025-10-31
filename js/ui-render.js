@@ -1,0 +1,696 @@
+// --- 2. UTILITY FUNCTIONS ---
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+function byld(id) { return document.getElementById(id); }
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+const fmt = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(amount || 0);
+
+// --- 7. RENDER FUNCTIONS (HTML TEMPLATES) ---
+
+function renderHeader() {
+    return `
+<div class="no-print flex-between items-center border-b border-gray-700 pb-2 mb-8">
+    <div class="flex flex-col">
+        <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
+        <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
+    </div>
+    <img src="${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 3.5rem;" class="w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
+</div>`;
+}
+
+function renderProgress() {
+    const steps = [
+        { title: 'System Overview' },
+        { title: 'Project Setup' },
+        { title: 'Location Manager' },
+        { title: 'Infrastructure' },
+        { title: 'Review & Export' },
+    ];
+    const isSetupIncomplete = !State.projectDetails.configName || !State.projectDetails.userName;
+    return `
+<div class="no-print flex justify-between mb-8">
+    ${steps.map((s, idx) => `
+    <div data-action="set-step" data-step="${idx + 1}"
+        class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')}">
+        <span class="font-medium text-sm md:text-base">Step ${idx + 1}: ${s.title}</span>
+    </div>
+    `).join("")}
+</div>`;
+}
+
+function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand) {
+    const costSection = equipmentCost > 0 ?
+        `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
+            <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(equipmentCost)}</span>
+        </div>
+        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
+        <div class="space-y-2 mb-4">
+            <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost (${(LABOR_RATE * 100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(labor)}</span></div>
+            <div class="flex-between"><span class="text-sm text-gray-400">Programming (${(PROGRAMMING_SETUP_RATE * 100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
+        </div>
+        <div class="flex-between font-extrabold text-xl mt-4 border-t-4 pt-4 border-green-700">
+            <span class="text-white">GRAND TOTAL:</span>
+            <span class="text-red-400">${fmt(grand)}</span>
+        </div>`
+        :
+        `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
+            <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(0)}</span>
+        </div>
+        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
+        <div class="space-y-2 mb-4">
+            <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
+            <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
+        </div>
+        <div class="flex-between font-extrabold text-xl mt-4 border-t-4 pt-4 border-green-700">
+            <span class="text-white">GRAND TOTAL:</span>
+            <span class="text-red-400">${fmt(0)}</span>
+        </div>`;
+
+    return `
+<div class="space-y-8 no-print">
+    <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            ${Icons.Clipboard('w-6 h-6 mr-2 text-green-400')}
+            Project Summary
+        </h2>
+        <div class="space-y-3 mb-6 text-gray-300">
+            <div class="flex-between font-semibold"><span>Locations Defined:</span><span>${State.locations.length}</span></div>
+            <div class="flex-between"><span>Total Core Devices:</span><span>${devicesCount || 0}</span></div>
+            <div class="flex-between"><span>Total Headsets:</span><span>${headsetsCount || 0}</span></div>
+        </div>
+        ${costSection}
+    </div>
+    ${renderSavedConfigs()}
+</div>`;
+}
+
+function renderApp() {
+    if (State.isFinalEditMode && State.step === 1) State.step = 5;
+
+    if (State.isCalculating) {
+        document.getElementById('app').innerHTML = `<div class="text-center p-10"><h2 class="text-2xl font-semibold text-green-400">Loading Pricing...</h2></div>`;
+        return;
+    }
+
+    const calculatedConfig = calculateTotalConfig(State.locations);
+    const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculatedConfig;
+
+    if (State.step === 5 && State.locations.length > 0 && !State.isFinalEditMode) {
+        State.configProducts = { ...calculatedConfig };
+        State.isFinalEditMode = true;
+    }
+
+    const mapForDisplay = (State.step === 5 && State.isFinalEditMode) ?
+        Object.keys(productMap).reduce((acc, id) => {
+            acc[id] = finalProductsMap[id] || 0;
+            return acc;
+        }, {}) : finalProductsMap;
+
+    const { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand } = computeFromProducts(mapForDisplay);
+    const displayList = list.filter(p => p.id !== 'HSETCUST');
+
+    let stepContent;
+    if (State.step === 1) stepContent = renderStep1Overview();
+    else if (State.step === 2) stepContent = renderStep2();
+    else if (State.step === 3) stepContent = renderStep3LocationManager(calculatedConfig);
+    else if (State.step === 4) stepContent = renderStep4Infrastructure();
+    else stepContent = renderStep5Review(displayList, { equipmentCost, devicesCount, headsetsCount, labor, programming, grand });
+
+    const html = `
+    ${renderHeader()}
+    ${renderSystemAlert()}
+    ${State.isLocationModalOpen ? renderLocationModal() : ""}
+    ${renderProgress()}
+    <div class="grid lg:grid-cols-3 gap-8 p-0 sm:p-4">
+        <div class="lg:col-span-2 space-y-8">
+            <div class="card p-6 md:p-8">
+                ${stepContent}
+            </div>
+        </div>
+        ${renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand)}
+    </div>
+    ${renderPrintSection(displayList, { equipmentCost, labor, programming, grand })}
+    `;
+    document.getElementById('app').innerHTML = html;
+}
+
+function renderStep1Overview() {
+    return `
+<div class="space-y-6 text-center">
+    <h1 class="text-3xl font-extrabold text-white">Understand Your System</h1>
+    <p class="text-lg text-green-400 max-w-3xl mx-auto">Get familiar with the parts you'll need before starting the designer.</p>
+    <p class="text-base text-gray-400 max-w-2xl mx-auto">Here are the key components of a Green-GO intercom system.</p>
+</div>
+<main class="flex-grow mt-8">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SW8}" alt="Network Switch" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Network+Switch'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Network Switches</h3>
+                <p class="text-sm text-gray-300">The heart of communication. Connects all Green-GO devices via standard Ethernet.</p>
+            </div>
+        </div>
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.WSX}" alt="Wall Panel" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wall+Panel'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Wall Panels</h3>
+                <p class="text-sm text-gray-300">Fixed intercom stations for specific locations, control rooms, or studios.</p>
+            </div>
+        </div>
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.GBPX}" alt="Wired Beltpack" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wired+Beltpack'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Wired Beltpacks</h3>
+                <p class="text-sm text-gray-300">Portable intercom units worn by crew members for communication on the move.</p>
+            </div>
+        </div>
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.WBPX}" alt="Wireless Beltpack" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wireless+Beltpack'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Wireless Beltpacks</h3>
+                <p class="text-sm text-gray-300">Cord-free versions that provide maximum flexibility and freedom in larger spaces.</p>
+            </div>
+        </div>
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.INTERFACEX}" alt="Interfaces" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Interfaces'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Interfaces</h3>
+                <p class="text-sm text-gray-300">Bridge your Green-GO network with external analog, 2-wire, 4-wire, or radio systems.</p>
+            </div>
+        </div>
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SOFTWARE}" alt="Software" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Software'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Software</h3>
+                <p class="text-sm text-gray-300">Configure, monitor, and manage your entire intercom system from a computer.</p>
+            </div>
+        </div>
+    </div>
+</main>
+<footer class="mt-8 pt-6 border-t border-gray-700">
+    <button data-action="set-step" data-step="2" class="w-full btn btn-primary py-3 text-lg hover:bg-green-700">
+        Start Designing Now &rarr;
+    </button>
+</footer>`;
+}
+
+function renderStep2() {
+    const disabled = (!State.projectDetails.configName || !State.projectDetails.userName) ? 'disabled' : "";
+    return `
+<div class="space-y-6">
+    <h2 class="text-xl font-semibold text-green-400">2. Project Naming & Setup</h2>
+    <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-green-500">
+        <p class="text-sm text-gray-300">Define your project. This information is used to save and export configurations.</p>
+        <button data-action="skip-to-manual-check" class="mt-3 px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Skip to Manual BOM Entry &rarr;</button>
+    </div>
+    <div class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-300" for="configName">Configuration Name</label>
+            <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="configName" type="text" value="${escapeHtml(State.projectDetails.configName || "")}" placeholder="e.g., Main Stage Intercom" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-300" for="userName">Your Name (Designer)</label>
+            <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userName" type="text" value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email (Optional, for Reply-To)</label>
+            <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
+        </div>
+    </div>
+    <button id="start-step2-btn" data-action="start-step2-check" ${disabled} class="w-full btn py-2 ${disabled ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700'}">Start Adding Locations</button>
+</div>`;
+}
+
+function renderStep3LocationManager(aggregatedBOM) {
+    return `
+<div class="space-y-6">
+    <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
+    <div class="flex-between pb-3 border-b border-gray-700">
+        <h3 class="text-lg font-medium text-gray-300">Locations: ${State.locations.length}</h3>
+        <button data-action="open-location-modal" class="btn btn-primary px-4 py-2 hover:bg-green-700">+ Add Location</button>
+    </div>
+    ${State.locations.length === 0 ? `
+    <div class="text-center py-10 text-gray-500 bg-gray-700 rounded-lg">Click "Add Location" to start</div>
+    ` : `
+    <div class="space-y-3">
+        ${State.locations.map(loc => {
+        const parts = [];
+        if (loc.wiredCount > 0) parts.push(`${loc.wiredCount} Wired`);
+        if (loc.wirelessCount > 0) parts.push(`${loc.wirelessCount} Wireless`);
+        if (loc.wallStationCount > 0) parts.push(`${loc.wallStationCount} Wall`);
+        if ((loc.keyPanelCount || 0) > 0) parts.push(`${loc.keyPanelCount} Panel`);
+        const summary = parts.length > 0 ? parts.join(', ') : 'No Devices';
+        return `
+            <div class="flex-between p-3 bg-gray-700 border border-gray-600 rounded-lg shadow-sm">
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-100">${escapeHtml(loc.name)}</p>
+                    <p class="text-xs text-gray-400">${summary}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button data-action="edit-location" data-id="${loc.id}" class="text-indigo-400 hover:text-indigo-300 p-1">${Icons.Edit()}</button>
+                    <button data-action="delete-location" data-id="${loc.id}" class="text-red-400 hover:text-red-300 p-1">${Icons.Trash2()}</button>
+                </div>
+            </div>
+            `;
+    }).join("")}
+    </div>
+    `}
+    <button data-action="go-step4" ${State.locations.length === 0 ? 'disabled' : ""} class="w-full btn py-2 ${State.locations.length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700'}">Continue to Infrastructure &rarr;</button>
+</div>`;
+}
+
+function renderStep4Infrastructure() {
+    const inf = State.infrastructureDetails;
+    const isFarDistance = inf.farDistance === 'yes';
+    return `
+<div class="space-y-6">
+    <h2 class="text-xl font-semibold text-green-400">4. Infrastructure & Connectivity</h2>
+    <p class="text-gray-300">These questions determine advanced networking components needed.</p>
+
+    <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
+        <label class="inline-flex items-center font-medium text-gray-300">
+            <input type="checkbox" data-inf-field="needsWalkieTalkieInterface" ${inf.needsWalkieTalkieInterface ? 'checked' : ""} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
+            <span class="ml-2">Interface with Walkie-Talkies?</span>
+        </label>
+        ${inf.needsWalkieTalkieInterface ? '<p class="text-xs text-red-400 mt-2">Adds RDX Interface to BOM</p>' : ""}
+    </div>
+
+    <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
+        <label class="block font-medium text-gray-300 mb-2">Connect to separate building/location (Bridge)?</label>
+        <div class="flex space-x-4 text-gray-300">
+            <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="isMultiSite" name="isMultiSite" value="no" ${inf.isMultiSite === 'no' ? 'checked' : ""} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">No</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="isMultiSite" name="isMultiSite" value="yes" ${inf.isMultiSite === 'yes' ? 'checked' : ""} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">Yes</span>
+            </label>
+        </div>
+        ${inf.isMultiSite === 'yes' ? '<p class="text-xs text-red-400 mt-2">Adds Bridge Interface to BOM</p>' : ""}
+    </div>
+
+    <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
+        <label class="block font-medium text-gray-300 mb-2">Furthest point over 150ft/50m from rack?</label>
+        <div class="flex space-x-4 text-gray-300">
+            <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="farDistance" name="farDistance" value="no" ${inf.farDistance === 'no' ? 'checked' : ""} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">No</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" data-inf-field="farDistance" name="farDistance" value="yes" ${inf.farDistance === 'yes' ? 'checked' : ""} class="text-indigo-500 bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">Yes</span>
+            </label>
+        </div>
+        ${isFarDistance ? `
+        <p class="text-xs text-red-400 mt-3">Requires fiber link and additional switch at far end if devices are present there.</p>
+        <div class="space-y-2 mt-2 text-gray-300">
+            <label class="inline-flex items-center">
+                <input type="checkbox" data-inf-field="wirelessAtFar" ${inf.wirelessAtFar ? 'checked' : ""} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">Wireless coverage needed at far location</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="checkbox" data-inf-field="wiredAtFar" ${inf.wiredAtFar ? 'checked' : ""} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
+                <span class="ml-2 text-sm">Wired devices needed at far location</span>
+            </label>
+        </div>
+        ${(inf.wiredAtFar || inf.wirelessAtFar) ? '<p class="text-xs text-red-400 mt-2">Adds SW18 (main), SFOM Fiber Modules, and an SW8 (remote) to BOM.</p>' : '<p class="text-xs text-yellow-400 mt-2">Adds SW18 (main) and SFOM Fiber Modules for future expansion. No remote switch added yet.</p>'}
+        ` : ""}
+    </div>
+
+    <div class="flex-between pt-4 border-t border-gray-700">
+        <button data-action="set-step" data-step="3" class="btn btn-secondary px-4 py-2">Back</button>
+        <button data-action="set-step" data-step="5" class="btn btn-primary px-4 py-2 hover:bg-green-700">Review & Export &rarr;</button>
+    </div>
+</div>`;
+}
+
+function renderStep5Review(productsToDisplay, totals) {
+    const validation = runValidationChecks(productsToDisplay);
+    const fullListWithCounts = initialProducts.map(p => ({
+        ...p,
+        count: productsToDisplay.find(item => item.id === p.id)?.count || 0
+    })).filter(p => p.id !== 'HSETCUST');
+
+    const sortedProducts = fullListWithCounts.sort((a, b) => a.name.localeCompare(b.name));
+
+    const groups = productGroups.map(g => {
+        if (g.name === 'Customer Supplied') return null;
+        return {
+            ...g,
+            products: sortedProducts.filter(p => p.group === g.name)
+        };
+    }).filter(g => g && g.products.length > 0); // Also filter out groups with no products to show
+
+    const getImageTag = (id) => {
+        const url = imageMap[id];
+        if (!url) return "";
+        const altText = getProduct(id)?.name || 'Product';
+        return `<img loading="lazy" src="${url}" alt="${altText}" class="img-bom-thumb hidden sm:block bg-white p-1" onerror="this.style.display='none'" />`;
+    };
+
+    return `
+<div class="space-y-6">
+    <h2 class="text-xl font-semibold text-green-400">5. Final Bill of Materials</h2>
+    <div class="p-4 border-l-4 border-green-500 bg-gray-700 rounded-lg">
+        <p class="text-sm text-gray-300">Review and manually adjust quantities if needed.</p>
+        <div class="mt-2 font-medium text-sm text-gray-300">Project: <strong>${escapeHtml(State.projectDetails.configName || 'UNNAMED')}</strong> by <strong>${escapeHtml(State.projectDetails.userName || 'DESIGNER')}</strong></div>
+    </div>
+
+    <div class="p-4 shadow rounded-lg ${validation.status === 'PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
+        <h3 class="lg:text-lg font-bold flex items-center ${validation.status === 'PASS' ? 'text-green-400' : 'text-red-400'}">
+            ${validation.status === 'PASS' ? Icons.CheckCircle('w-5 h-5 mr-2') : Icons.AlertCircle('w-5 h-5 mr-2')}
+            Validation: ${validation.status}
+        </h3>
+        ${validation.validation_issues.length ? `<ul class="list-disc ml-5 ${validation.status === 'PASS' ? 'text-green-300' : 'text-red-300'} text-sm mt-2">${validation.validation_issues.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : ""}
+    </div>
+
+    <div class="space-y-6">
+        ${groups.map(group => `
+        <div class="space-y-3">
+            <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
+                ${Icons[group.icon] ? Icons[group.icon]('w-5 h-5 mr-2 text-green-400') : ""}
+                ${group.name}
+            </h3>
+            ${group.products.map(item => `
+            <div class="flex items-center justify-between p-3 ${item.count > 0 ? 'bg-gray-700 border-gray-600' : 'bg-gray-800 border-gray-700 opacity-70'} border rounded-lg shadow-sm">
+                <div class="flex-1 min-w-0 flex items-center">
+                    ${getImageTag(item.id)}
+                    <div>
+                        <div class="font-semibold ${item.count > 0 ? 'text-gray-100' : 'text-gray-400'}">${escapeHtml(item.name)} <span class="text-xs text-gray-400">(${escapeHtml(item.sku || "")})</span></div>
+                        <div class="text-xs ${item.count > 0 ? 'text-green-400' : 'text-gray-500'}">${escapeHtml(item.role || "")}</div>
+                        <div class="text-sm font-bold text-indigo-400 mt-1">${fmt(item.price || 0)}</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 ml-4">
+                    <button data-action="dec-item" data-id="${item.id}" class="p-1 text-red-400 border border-red-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-red-900 text-xl font-bold leading-none">-</button>
+                    <span class="text-lg font-bold w-12 text-center ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
+                    <button data-action="inc-item" data-id="${item.id}" class="p-1 text-green-400 border border-green-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-green-900 text-xl font-bold leading-none">+</button>
+                </div>
+            </div>
+            `).join("")}
+        </div>
+        `).join("")}
+    </div>
+
+    <div class="flex-col items-center pt-4 border-t border-gray-700">
+        <div class="flex justify-between w-full space-x-4">
+            <button data-action="set-step" data-step="4" class="btn btn-secondary px-4 py-2">Back</button>
+            <button data-action="save-config" class="btn bg-indigo-600 hover:bg-indigo-700 text-white py-3">Save Configuration</button>
+            <button data-action="save-and-notify" class="btn btn-primary py-3 hover:bg-green-700" ${State.isSending ? 'disabled' : ""}>
+                ${State.isSending ? 'Sending...' : 'Email Design'}
+            </button>
+        </div>
+        <p class="text-sm text-gray-400 mt-3 text-center">
+            This will notify S&S that you have saved a new design.
+        </p>
+    </div>
+</div>`;
+}
+
+function renderSavedConfigs() {
+    return `
+<div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
+    <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+        ${Icons.Clipboard('w-6 h-6 mr-2 text-green-400')}
+        Saved (${State.savedConfigs.length})
+    </h2>
+    <div class="space-y-3">
+        ${State.savedConfigs.length === 0 ? '<p class="text-gray-400">No saved configurations</p>' : State.savedConfigs.map(cfg => `
+        <div class="flex-between p-3 bg-gray-700 border border-gray-600 rounded-lg">
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-gray-100">${escapeHtml(cfg.name)}</p>
+                <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost || 0)}</p>
+            </div>
+            <div class="flex space-x-2">
+                <button data-action="load-config" data-id="${cfg.id}" class="text-green-400 hover:text-green-300 text-sm">Load</button>
+                <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+            </div>
+        </div>
+        `).join("")}
+    </div>
+</div>`;
+}
+
+function renderSystemAlert() {
+    if (!State.systemAlert.show) return "";
+
+    let style = 'bg-yellow-900 text-yellow-300 border-yellow-600';
+    let buttonColor = 'bg-yellow-600 hover:bg-yellow-700';
+    if (State.systemAlert.type === 'error') { style = 'bg-red-900 text-red-300 border-red-600'; buttonColor = 'bg-red-600 hover:bg-red-700'; }
+    if (State.systemAlert.type === 'success') { style = 'bg-green-900 text-green-300 border-green-700'; buttonColor = 'bg-green-600 hover:bg-green-700'; }
+    if (State.systemAlert.type === 'confirm') { style = 'bg-green-900 text-green-300 border-green-700'; buttonColor = 'bg-green-600 hover:bg-green-700'; }
+    const isConfirm = State.systemAlert.type === 'confirm';
+
+    return `
+<div class="modal-backdrop z-modal">
+    <div class="p-6 rounded-xl shadow-2xl w-full max-w-sm ${style} border-l-4">
+        <p class="font-semibold mb-4">${escapeHtml(State.systemAlert.message || "")}</p>
+        <div class="flex ${isConfirm ? 'justify-end space-x-3' : 'justify-end'}">
+            ${isConfirm ? `<button data-action="alert-cancel" class="px-4 py-2 text-sm bg-gray-600 text-gray-200 rounded border border-gray-500 hover:bg-gray-500">Cancel</button>` : ""}
+            <button data-action="alert-confirm" class="px-4 py-2 text-sm text-white rounded ${buttonColor}">${isConfirm ? 'Confirm' : 'OK'}</button>
+        </div>
+    </div>
+</div>`;
+}
+
+function renderQuantityControl(id, value) {
+    return `
+<div class="bubble-control" data-field-id="${id}">
+    <button data-loc-action="dec-qty" data-id="${id}" class="bubble-minus"><span class="text-2xl leading-none">-</span></button>
+    <span id="${id}" class="bubble-count">${value}</span>
+    <button data-loc-action="inc-qty" data-id="${id}" class="bubble-plus"><span class="text-2xl leading-none">+</span></button>
+</div>`;
+}
+
+function getModalImageTag(productId) {
+    const url = imageMap[productId];
+    if (!url) return "";
+    const altText = getProduct(productId)?.name || 'Product';
+    return `<img loading="lazy" src="${url}" alt="${altText}" class="img-modal-icon" onerror="this.style.display='none'" />`;
+}
+
+function renderLocationModal() {
+    const isEditing = State.editingLocationId !== null;
+    const readValue = (id) => {
+        const location = isEditing ? State.locations.find(l => l.id === State.editingLocationId) : null;
+        if (location) {
+            if (id === 'loc-keypanelcount') return location.keyPanelCount || 0;
+            if (id === 'loc-wired') return location.wiredCount || 0;
+            if (id === 'loc-wireless') return location.wirelessCount || 0;
+            if (id === 'loc-wallstation') return location.wallStationCount || 0;
+            if (id === 'loc-beacon') return location.beaconCount || 0;
+            if (id === 'h-std1') return location.headsetSplit?.stdOneEar || 0;
+            if (id === 'h-std2') return location.headsetSplit?.stdDualEar || 0;
+            if (id === 'h-comf1') return location.headsetSplit?.comfortOneEar || 0;
+            if (id === 'h-comf2') return location.headsetSplit?.comfortDualEar || 0;
+            if (id === 'h-handset') return location.headsetSplit?.handset || 0;
+        }
+        return 0;
+    };
+
+    return `
+<div class="modal-backdrop z-modal">
+    <div class="modal-content">
+        <h3 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 text-green-400">${isEditing ? 'Edit Location' : 'Add Location'}</h3>
+        <div class="space-y-4 overflow-y-auto pr-2" style="max-height: 60vh;">
+            
+            <input id="loc-name" type="text" placeholder="Location Name" class="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" />
+            <p id="loc-name-error" class="text-sm text-red-400 font-medium" style="display: none;">Location Name required</p>
+
+            <h4 class="font-semibold text-gray-200 mt-2">Device Counts</h4>
+            <div class="grid md:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                        <img loading="lazy" src="${imageMap.GBPX}" alt="Wired Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wired:
+                    </label>
+                    ${renderQuantityControl('loc-wired', readValue('loc-wired'))}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                        <img loading="lazy" src="${imageMap.WBPX}" alt="Wireless Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wireless:
+                    </label>
+                    ${renderQuantityControl('loc-wireless', readValue('loc-wireless'))}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                        <img loading="lazy" src="${imageMap.WSX}" alt="Wall Station" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wall:
+                    </label>
+                    ${renderQuantityControl('loc-wallstation', readValue('loc-wallstation'))}
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-3 mt-4 items-end">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                        <img loading="lazy" src="${imageMap.MCXD}" alt="Key Panel" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Key Panels:
+                    </label>
+                    ${renderQuantityControl('loc-keypanelcount', readValue('loc-keypanelcount'))}
+                </div>
+                <div id="loc-mount-wrap" style="visibility:hidden;">
+                    <label class="block text-sm font-medium mb-1 text-gray-300">Mount:</label>
+                    <select id="loc-basemount" class="w-full p-2 border border-gray-600 rounded h-10 bg-gray-700 text-gray-300">
+                        <option value="desktop">Desktop</option>
+                        <option value="rackmount">Rackmount</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-3 mt-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
+                        <img loading="lazy" src="${imageMap.BCON}" alt="Beacon" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Beacons:
+                    </label>
+                    ${renderQuantityControl('loc-beacon', readValue('loc-beacon'))}
+                </div>
+            </div>
+
+            <div id="loc-hd-wrap" class="hidden items-center p-2 bg-gray-700 border border-yellow-600 rounded-md">
+                <input id="loc-hd" type="checkbox" class="h-4 w-4 mr-2 text-yellow-500 bg-gray-600 border-gray-500 rounded focus:ring-yellow-500" />
+                <span class="text-sm text-yellow-300 flex items-center">Use <strong class="mx-1">Heavy Duty/Sports</strong> Wireless <img loading="lazy" src="${imageMap.WBPXHD}" alt="Sport Beltpack" class="w-8 h-8 object-contain ml-1" onerror="this.style.display='none'"></span>
+            </div>
+
+            <h4 class="font-semibold text-gray-200 mt-2">Headset Allocation <span id="loc-headset-total" class="text-xs text-gray-400"></span></h4>
+            <p id="loc-headset-remaining" class="text-sm font-medium text-red-400">Remaining: 0</p>
+            <p id="loc-headset-warning" class="text-xs font-medium text-red-400" style="display: none;">Allocation required or check Customer Supplied</p>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET1E}" alt="Single Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Single:</label>
+                    ${renderQuantityControl('h-std1', readValue('h-std1'))}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET2E}" alt="Dual Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Dual:</label>
+                    ${renderQuantityControl('h-std2', readValue('h-std2'))}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC1E}" alt="Comfort Single" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Single:</label>
+                    ${renderQuantityControl('h-comf1', readValue('h-comf1'))}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC2E}" alt="Comfort Dual" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Dual:</label>
+                    ${renderQuantityControl('h-comf2', readValue('h-comf2'))}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.TELH}" alt="Handset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Handset:</label>
+                    ${renderQuantityControl('h-handset', readValue('h-handset'))}
+                </div>
+            </div>
+
+            <div id="loc-customer-supplied-wrap" class="hidden items-center p-2 bg-gray-700 border border-indigo-500 rounded-md mt-4">
+                <input id="loc-existing-headsets" type="checkbox" class="h-4 w-4 mr-2 text-indigo-500 bg-gray-600 border-gray-500 rounded focus:ring-indigo-500" />
+                <span class="text-sm text-indigo-300">Customer Supplied Headsets cover remaining</span>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 mt-6">
+            <button data-action="close-location-modal" class="btn btn-secondary px-4 py-2">Cancel</button>
+            <button data-action="save-location" id="save-location-btn" class="btn btn-primary px-4 py-2 hover:bg-green-700">Add Location</button>
+        </div>
+    </div>
+</div>`;
+}
+
+function renderPrintSection(productsToDisplay, totals) {
+    const { equipmentCost, labor, programming, grand } = totals;
+    const validation = runValidationChecks(productsToDisplay);
+    const today = new Date().toLocaleDateString();
+
+    const filteredList = productsToDisplay.filter(p => p.count > 0);
+    const groups = productGroups.map(g => {
+        if (g.name === 'Customer Supplied') return null;
+        const groupProducts = filteredList.filter(p => p.group === g.name).sort((a, b) => a.name.localeCompare(b.name));
+        if (groupProducts.length === 0) return null;
+        return { name: g.name, products: groupProducts };
+    }).filter(Boolean);
+
+    return `
+<div class="print-only">
+    <div class="flex-between border-b pb-2 mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-green-800">Green-GO System Quote</h1>
+            <img src="${imageMap.CRC_LOGO}" alt="Logo" class="h-8 w-auto object-contain mt-2">
+            <div class="mt-4 text-sm">
+                <p><strong>Project:</strong> ${escapeHtml(State.projectDetails.configName || 'N/A')}</p>
+                <p><strong>Designer:</strong> ${escapeHtml(State.projectDetails.userName || 'N/A')}</p>
+                <p><strong>Date:</strong> ${today}</p>
+            </div>
+        </div>
+        <img src="https://sspro-installs.github.io/media-assets/branding/SS-Pro-Logo-Set-Black.png" alt="S&S Logo Print" class="h-16 w-auto object-contain">
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Bill of Materials</h2>
+    <table class="w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+            <tr class="border-b-2 border-gray-300">
+                <th class="text-left p-2">SKU</th>
+                <th class="text-left p-2">Product Name</th>
+                <th class="text-right p-2">Qty</th>
+                <th class="text-right p-2">Unit Price</th>
+                <th class="text-right p-2">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${groups.map(g => ` 
+            <tr>
+                <td colspan="5" class="font-bold text-lg pt-4 pb-1 border-b">${g.name}</td>
+            </tr>
+            ${g.products.map(p => `
+            <tr class="border-b border-gray-200">
+                <td class="p-2">${escapeHtml(p.sku)}</td>
+                <td class="p-2">${escapeHtml(p.name)}<br><span class="text-xs text-gray-500">${escapeHtml(p.role)}</span></td>
+                <td class="text-right p-2">${p.count}</td>
+                <td class="text-right p-2">${fmt(p.price)}</td>
+                <td class="text-right p-2">${fmt(p.price * p.count)}</td>
+            </tr>
+            `).join("")}
+            `).join("")}
+        </tbody>
+    </table>
+
+    <div class="max-w-sm ml-auto mt-8 space-y-3">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Quote Summary</h2>
+        <div class="flex-between font-semibold text-lg border-b pb-2">
+            <span>Equipment Total:</span>
+            <span class="text-green-600">${fmt(equipmentCost)}</span>
+        </div>
+        <div class="flex-between">
+            <span>Labor (${(LABOR_RATE * 100).toFixed(0)}%):</span>
+            <span class="font-medium">${fmt(labor)}</span>
+        </div>
+        <div class="flex-between">
+            <span>Programming (${(PROGRAMMING_SETUP_RATE * 100).toFixed(0)}%):</span>
+            <span class="font-medium">${fmt(programming)}</span>
+        </div>
+        <div class="flex-between font-extrabold text-2xl mt-4 border-t-4 pt-4 border-green-700">
+            <span>GRAND TOTAL:</span>
+            <span class="text-red-600">${fmt(grand)}</span>
+        </div>
+    </div>
+
+    <div class="mt-8 pt-4 border-t">
+        <h3 class="font-bold text-lg">System Validation</h3>
+        <div class="p-4 ${validation.status === 'PASS' ? 'bg-green-100 border-green-700' : 'bg-red-50 border-red-500'} border-l-4 rounded-lg mt-2">
+            <p><strong>Status: ${validation.status}</strong></p>
+            ${validation.validation_issues.length ? `<ul class="list-disc ml-5 text-red-700 text-sm mt-2">${validation.validation_issues.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : ""}
+        </div>
+    </div>
+</div>`;
+}
