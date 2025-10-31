@@ -737,12 +737,12 @@
 
         function renderHeader() {
             return `
-            <div class="no-print flex-between items-center border-b border-gray-700 pb-2 mb-8">
+            <div class="no-print flex-between border-b border-gray-700 pb-2 mb-8">
                 <div class="flex flex-col">
                     <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
                     <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
                 </div>
-                <img src="${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 3.5rem;" class="w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
+                <img src="\${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 4.375rem;" class="w-auto object-contain self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
             </div>`;
         }
 
@@ -802,7 +802,7 @@
             <div class="space-y-8 no-print">
                 <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
                     <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-                        ${Icons.Clipboard('w-6 h-6 mr-2 text-green-400')}
+                        ${Icons.Clipboard('w-5 h-5 mr-2 text-green-400')}
                         Project Summary
                     </h2>
                     <div class="space-y-3 mb-6 text-gray-300">
@@ -812,13 +812,18 @@
                     </div>
                     ${costSection}
                 </div>
+                
+                <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
+                    <h2 class="text-xl font-bold text-white mb-4">Reset System</h2>
+                    <p class="text-sm text-gray-400 mb-4">This will clear all item quantities in your current design. Project info will not be reset.</p>
+                    <button data-action="reset-system" class="w-full btn bg-red-600 hover:bg-red-700 text-white py-2">Reset All Quantities</button>
+                 </div>
+                 
                 ${renderSavedConfigs(equipmentCost)}
             </div>`;
         }
 
         function renderApp() {
-            if (State.isFinalEditMode && State.step === 1) State.step = 5;
-            
             // Handle loading state
             if (State.isCalculating) {
                 document.getElementById('app').innerHTML = `<div class="text-center p-10"><h2 class="text-2xl font-semibold text-green-400">Loading Pricing...</h2></div>`;
@@ -948,7 +953,7 @@
                             value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email (Optional, for Reply-To)</label>
+                        <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
                         <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email"
                             value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
                     </div>
@@ -1097,7 +1102,7 @@
 
                 <div class="p-4 shadow rounded-lg ${validation.status === 'PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
                     <h3 class="lg:text-lg font-bold flex items-center ${validation.status === 'PASS' ? 'text-green-400' : 'text-red-400'}">
-                        ${validation.status === 'PASS' ? Icons.CheckCircle('w-5 h-5 mr-2') : Icons.AlertCircle('w-5 h-5 mr-2')}
+                        ${validation.status === 'PASS' ? Icons.CheckCircle('w-4 h-4 mr-2') : Icons.AlertCircle('w-4 h-4 mr-2')}
                         Validation: ${validation.status}
                     </h3>
                     ${validation.validation_issues.length ? `<ul class="list-disc ml-5 ${validation.status === 'PASS' ? 'text-green-300' : 'text-red-300'} text-sm mt-2">${validation.validation_issues.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : ""}
@@ -1107,7 +1112,7 @@
                     ${groups.map(group => `
                     <div class="space-y-3">
                         <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
-                            ${Icons[group.icon] ? Icons[group.icon]('w-5 h-5 mr-2 text-green-400') : ''}
+                            ${Icons[group.icon] ? Icons[group.icon]('w-4 h-4 mr-2 text-green-400') : ''}
                             ${group.name}
                         </h3>
                         ${group.products.map(item => `
@@ -1121,9 +1126,9 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 ml-4">
-                                <button data-action="dec-item" data-id="${item.id}" class="p-1 text-red-400 border border-red-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-red-900 text-xl font-bold leading-none">-</button>
+                                <button data-action="dec-item" data-id="${item.id}" class="p-1 text-red-400 border border-red-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-red-900 text-2xl font-bold leading-none">-</button>
                                 <span class="text-lg font-bold w-12 text-center ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
-                                <button data-action="inc-item" data-id="${item.id}" class="p-1 text-green-400 border border-green-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-green-900 text-xl font-bold leading-none">+</button>
+                                <button data-action="inc-item" data-id="${item.id}" class="p-1 text-green-400 text-green-400 text-green-400 border border-green-500 rounded-full w-9 h-9 flex items-center justify-center hover:bg-green-900 text-2xl font-bold leading-none">+</button>
                             </div>
                         </div>
                         `).join("")}
@@ -1150,7 +1155,7 @@
             return `
             <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
                 <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-                    ${Icons.Clipboard('w-6 h-6 mr-2 text-green-400')}
+                    ${Icons.Clipboard('w-5 h-5 mr-2 text-green-400')}
                     Saved (${State.savedConfigs.length})
                 </h2>
                 <div class="space-y-3">
@@ -1161,8 +1166,9 @@
                             <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost || 0)}</p>
                         </div>
                         <div class="flex space-x-2">
-                            <button data-action="load-config" data-id="${cfg.id}" class="text-green-400 hover:text-green-300 text-sm">Load</button>
-                            <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                         <button data-action="load-config" data-id="\${cfg.id}" class="px-3 py-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Load</button>
+                         <button data-action="delete-saved" data-id="\${cfg.id}"
+                         data-name="\${escapeHtml(cfg.name)}" class="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold">Delete</button>
                         </div>
                     </div>
                     `).join("")}
@@ -1236,19 +1242,19 @@
                         <div class="grid md:grid-cols-3 gap-3">
                             <div>
                                 <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                                    <img loading="lazy" src="${imageMap.GBPX}" alt="Wired Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wired:
+                                    <img loading="lazy" src="${imageMap.GBPX}" alt="Wired Beltpack" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Wired:
                                 </label>
                                 ${renderQuantityControl('loc-wired', readValue('loc-wired'))}
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                                    <img loading="lazy" src="${imageMap.WBPX}" alt="Wireless Beltpack" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wireless:
+                                    <img loading="lazy" src="${imageMap.WBPX}" alt="Wireless Beltpack" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Wireless:
                                 </label>
                                 ${renderQuantityControl('loc-wireless', readValue('loc-wireless'))}
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                                    <img loading="lazy" src="${imageMap.WSX}" alt="Wall Station" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Wall:
+                                    <img loading="lazy" src="${imageMap.WSX}" alt="Wall Station" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Wall:
                                 </label>
                                 ${renderQuantityControl('loc-wallstation', readValue('loc-wallstation'))}
                             </div>
@@ -1256,7 +1262,7 @@
                         <div class="grid md:grid-cols-4 gap-3 mt-4 items-end">
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                                    <img loading="lazy" src="${imageMap.MCXD}" alt="Key Panel" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Key Panels:
+                                    <img loading="lazy" src="${imageMap.MCXD}" alt="Key Panel" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Key Panels:
                                 </label>
                                 ${renderQuantityControl('loc-keypanelcount', readValue('loc-keypanelcount'))}
                             </div>
@@ -1271,7 +1277,7 @@
                         <div class="grid md:grid-cols-4 gap-3 mt-4">
                             <div>
                                 <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center">
-                                    <img loading="lazy" src="${imageMap.BCON}" alt="Beacon" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Beacons:
+                                    <img loading="lazy" src="${imageMap.BCON}" alt="Beacon" class="w-12 h-12 object-contain mr-1" onerror="this.style.display='none'"> Beacons:
                                 </label>
                                 ${renderQuantityControl('loc-beacon', readValue('loc-beacon'))}
                             </div>
@@ -1286,23 +1292,23 @@
                         <p id="loc-headset-warning" class="text-xs font-medium text-red-400" style="display: none;">Allocation required or check Customer Supplied</p>
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
                             <div>
-                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET1E}" alt="Single Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Single:</label>
+                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET1E}" alt="Single Headset" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Std Single:</label>
                                 ${renderQuantityControl('h-std1', readValue('h-std1'))}
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET2E}" alt="Dual Headset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Std Dual:</label>
+                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSET2E}" alt="Dual Headset" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Std Dual:</label>
                                 ${renderQuantityControl('h-std2', readValue('h-std2'))}
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC1E}" alt="Comfort Single" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Single:</label>
+                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC1E}" alt="Comfort Single" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Comf Single:</label>
                                 ${renderQuantityControl('h-comf1', readValue('h-comf1'))}
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC2E}" alt="Comfort Dual" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Comf Dual:</label>
+                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.HSETC2E}" alt="Comfort Dual" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Comf Dual:</label>
                                 ${renderQuantityControl('h-comf2', readValue('h-comf2'))}
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.TELH}" alt="Handset" class="w-8 h-8 object-contain mr-1" onerror="this.style.display='none'"> Handset:</label>
+                                <label class="block text-sm font-medium mb-1 text-gray-300 flex items-center"><img loading="lazy" src="${imageMap.TELH}" alt="Handset" class="w-10 h-10 object-contain mr-1" onerror="this.style.display='none'"> Handset:</label>
                                 ${renderQuantityControl('h-handset', readValue('h-handset'))}
                             </div>
                         </div>
@@ -1505,7 +1511,24 @@
                 handleSaveAndNotify();
             }
 
-            if (action === 'load-config') {
+            if (action === 'reset-system') {
+                showAlert('Are you sure you want to reset all quantities?', 'confirm', () => {
+                    State.locations = [];
+                    State.configProducts = {};
+                    initialProducts.forEach(p => { State.configProducts[p.id] = 0; });
+                    State.infrastructureDetails = {
+                        isMultiSite: 'no',
+                        farDistance: 'no',
+                        wirelessAtFar: false,
+                        wiredAtFar: false,
+                        needsWalkieTalkieInterface: false,
+                    };
+                    State.isFinalEditMode = false;
+                    State.step = 3; // Go to location manager
+                    showAlert('System Reset.', 'success');
+    });
+}
+ if (action === 'load-config') {
                 const cfgId = parseInt(target.dataset.id, 10);
                 const cfg = State.savedConfigs.find(c => c.id === cfgId);
                 if (cfg) {
