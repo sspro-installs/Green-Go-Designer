@@ -370,3 +370,38 @@ label { display: block; color: #d1d5db; }
 ::-webkit-scrollbar-track { background: #1f2937; }
 ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+/* EDIT: Added styles for BOM page quantity controls (Request #9) */
+.bom-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+    background-color: #374151;
+    padding: 4px 8px;
+    height: 44px;
+    /* max-width: 180px; */ /* Let it be flexible */
+}
+.bom-control-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.4rem;
+    border-radius: 9999px;
+    background: none;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+.bom-minus { color: #f87171; border: 1px solid #ef4444; }
+.bom-plus { color: #4ade80; border: 1px solid #16a34a; }
+.bom-count {
+    font-weight: bold;
+    font-size: 1rem;
+    min-width: 40px;
+    text-align: center;
+    color: #e5e7eb;
+}
+
