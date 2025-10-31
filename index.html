@@ -200,15 +200,15 @@
         .img-fluid-small {
             max-width: 100%;
             height: auto;
-            max-height: 120px;
+            max-height: 80px;
             display: block;
             margin: 8px 0;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         .img-modal-icon {
-            max-height: 40px;
-            width: 40px;
+            max-height: 48px;
+            width: 48px;
             object-fit: contain;
             display: inline-block;
             margin-right: 8px;
@@ -742,7 +742,7 @@
                     <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
                     <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
                 </div>
-                <img src="${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 3.5rem;" class="w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
+                <img src="${imageMap.SS_LOGO}" alt="S&S Logo" style="height: 4.2rem;" class="w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
             </div>`;
         }
 
@@ -759,7 +759,7 @@
             <div class="no-print flex justify-between mb-8">
                 ${steps.map((s, idx) => `
                 <div data-action="set-step" data-step="${idx + 1}"
-                    class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+                    class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${'cursor-pointer'}
                     ${idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')}">
                     <span class="font-medium text-sm md:text-base">Step ${idx + 1}: ${s.title}</span>
                 </div>
@@ -776,7 +776,7 @@
                 <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 text-gray-200">Labor & Services</h3>
                 <div class="space-y-2 mb-4">
                     <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost (${(LABOR_RATE * 100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(labor)}</span></div>
-                    <div class="flex-between"><span class="text-sm text-gray-400">Programming (${(PROGRAMMING_SETUP_RATE * 100).toFixed(0)}%):</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
+                    <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
                 </div>
                 <div class="flex-between font-extrabold text-xl mt-4 border-t-4 pt-4 border-green-700">
                     <span class="text-white">GRAND TOTAL:</span>
@@ -815,6 +815,7 @@
                 ${renderSavedConfigs(equipmentCost)}
             </div>`;
         }
+        <button data-action="reset-system" class="w-full mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg">Reset System</button>
 
         function renderApp() {
             if (State.isFinalEditMode && State.step === 1) State.step = 5;
@@ -948,7 +949,7 @@
                             value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email (Optional, for Reply-To)</label>
+                        <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
                         <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email"
                             value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
                     </div>
@@ -961,6 +962,7 @@
             return `
             <div class="space-y-6">
                 <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
+                <p class="text-sm text-gray-400 mt-2">Define each physical area or zone in your facility that needs Green-GO communication equipment.</p>
                 <div class="flex-between pb-3 border-b border-gray-700">
                     <h3 class="text-lg font-medium text-gray-300">Locations: ${State.locations.length}</h3>
                     <button data-action="open-location-modal" class="btn btn-primary px-4 py-2 hover:bg-green-700">+ Add Location</button>
