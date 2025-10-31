@@ -228,8 +228,9 @@ label { display: block; color: #d1d5db; }
     padding: 2px;
 }
 .img-bom-thumb {
-    max-height: 48px;
-    max-width: 80px;
+    /* EDIT 2 (This time): Increased size by ~10% (Request #2) */
+    max-height: 53px; /* was 48px */
+    max-width: 88px;  /* was 80px */
     width: auto;
     height: auto;
     object-fit: contain;
