@@ -24,6 +24,8 @@ function handleGlobalClick(e) {
 
     if (action === 'set-step') {
         const newStep = parseInt(target.dataset.step, 10);
+        // EDIT: Removed check that prevents returning to Step 1.
+        // Now only checks if user tries to skip *ahead* without setup. (Request #2)
         if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName)) {
             showAlert('Please complete Project Setup first.', 'warning');
             return;
@@ -77,6 +79,29 @@ function handleGlobalClick(e) {
         State.locations = State.locations.filter(l => l.id !== locId);
         State.isFinalEditMode = false;
         renderApp();
+    }
+
+    // EDIT: Add handler for new "Reset System" button (Request #5)
+    if (action === 'reset-system') {
+        showAlert('Are you sure you want to reset all quantities?', 'confirm', () => {
+            State.locations = [];
+            State.configProducts = {};
+            // Assumes initialProducts is available globally from js/state.js
+            initialProducts.forEach(p => { State.configProducts[p.id] = 0; });
+            State.infrastructureDetails = {
+                isMultiSite: 'no',
+                farDistance: 'no',
+                wirelessAtFar: false,
+                wiredAtFar: false,
+                needsWalkieTalkieInterface: false,
+            };
+            State.isFinalEditMode = false;
+            cachedConfig = {}; // Clear calculation cache (assumes cachedConfig is global)
+            lastLocationsHash = ""; // Clear cache hash (assumes lastLocationsHash is global)
+            if (State.step !== 2) State.step = 3; // Go back to locations step
+            renderApp();
+            showAlert('System has been reset.', 'success');
+        });
     }
 
     if (action === 'inc-item') {
