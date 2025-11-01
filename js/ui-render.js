@@ -181,13 +181,7 @@ function renderStep1Overview() {
 </div>
 <main class="flex-grow mt-8">
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SW8}" alt="Network Switch" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Network+Switch'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Network Switches</h3>
-                <p class="text-sm text-gray-300">The heart of communication. Connects all Green-GO devices via standard Ethernet.</p>
-            </div>
-        </div>
+        
         <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
             <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.WSX}" alt="Wall Panel" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wall+Panel'">
             <div class="p-6">
@@ -209,6 +203,19 @@ function renderStep1Overview() {
                 <p class="text-sm text-gray-300">Cord-free versions that provide maximum flexibility and freedom in larger spaces.</p>
             </div>
         </div>
+
+        <!-- NEW: Headset Card Added -->
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <div class="w-full h-auto p-4 bg-gray-800 flex justify-center items-center" style="max-height: 200px;">
+                <img class="h-full w-1/2 object-contain" src="${imageMap.HSET2E}" alt="Dual Headset" onerror="this.src='https://placehold.co/300x200/1f2937/4ade80?text=Headset'">
+                <img class="h-full w-1/2 object-contain" src="${imageMap.HSET1E}" alt="Single Headset" onerror="this.src='https://placehold.co/300x200/1f2937/4ade80?text=Headset'">
+            </div>
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Headsets</h3>
+                <p class="text-sm text-gray-300">Clear and comfortable headsets for every user, available in single-ear and dual-ear models.</p>
+            </div>
+        </div>
+
         <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
             <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.INTERFACEX}" alt="Interfaces" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Interfaces'">
             <div class="p-6">
@@ -216,6 +223,16 @@ function renderStep1Overview() {
                 <p class="text-sm text-gray-300">Bridge your Green-GO network with external analog, 2-wire, 4-wire, or radio systems.</p>
             </div>
         </div>
+        
+        <!-- MOVED: Network Switches card moved here -->
+        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
+            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SW8}" alt="Network Switch" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Network+Switch'">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-green-400 mb-2">Network Switches</h3>
+                <p class="text-sm text-gray-300">The heart of communication. Connects all Green-GO devices via standard Ethernet.</p>
+            </div>
+        </div>
+
         <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
             <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SOFTWARE}" alt="Software" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Software'">
             <div class="p-6">
