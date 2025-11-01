@@ -29,7 +29,7 @@ function renderHeader() {
 <div class="no-print flex-between items-center border-b border-gray-700 pb-2 mb-8">
     <div class="flex flex-col">
         <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
-        <img src="${imageMap.CRC_LOGO}" alt="Calvary Revival Logo" class="h-8 w-auto object-contain mt-2 self-start" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x30/166534/ffffff?text=CRC'">
+        <!-- EDIT: Removed CRC Logo line from here -->
     </div>
     <!-- EDIT 1 (Last time): Set height to h-16 (4rem) to match left column height. flex-between handles right-justification. (Request #1) -->
     <img src="${imageMap.SS_LOGO}" alt="S&S Logo" class="h-16 w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
@@ -639,6 +639,7 @@ function renderLocationModal() {
         <div class="flex justify-end space-x-4 mt-6">
             <button data-action="close-location-modal" class="btn btn-secondary px-4 py-2">Cancel</button>
             <button data-action="save-location" id="save-location-btn" class="btn btn-primary px-4 py-2 hover:bg-green-700">Add Location</button>
+
         </div>
     </div>
 </div>`;
@@ -662,7 +663,7 @@ function renderPrintSection(productsToDisplay, totals) {
     <div class="flex-between border-b pb-2 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-green-800">Green-GO System Quote</h1>
-            <img src="${imageMap.CRC_LOGO}" alt="Logo" class="h-8 w-auto object-contain mt-2">
+            <!-- EDIT: Removed CRC Logo line from here -->
             <div class="mt-4 text-sm">
                 <p><strong>Project:</strong> ${escapeHtml(State.projectDetails.configName || 'N/A')}</p>
                 <p><strong>Designer:</strong> ${escapeHtml(State.projectDetails.userName || 'N/A')}</p>
