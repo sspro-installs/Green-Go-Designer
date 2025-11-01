@@ -115,7 +115,16 @@ function calculateTotalConfig(currentLocations) {
     }
 
     let currentSwitchCount = (aggregated['SW18'] || 0) + (aggregated['SW8'] || 0) + (aggregated['SW6'] || 0);
-    let requiredSwitches = Math.max(1, Math.ceil(totalWiredPoEDevices / SW_DEVICE_RATIO));
+    
+    // --- THIS IS THE FIX ---
+    // Only calculate required switches if there are actually devices that need them.
+    // Otherwise, requiredSwitches should be 0.
+    let requiredSwitches = 0;
+    if (totalWiredPoEDevices > 0) {
+        requiredSwitches = Math.max(1, Math.ceil(totalWiredPoEDevices / SW_DEVICE_RATIO));
+    }
+    // --- END OF FIX ---
+
     let switchesToAdd = requiredSwitches - currentSwitchCount;
 
     if (switchesToAdd > 0 && aggregated['SW18'] === 0) {
@@ -123,7 +132,8 @@ function calculateTotalConfig(currentLocations) {
     } else if (switchesToAdd > 0 && aggregated['SW18'] > 0 && (State.infrastructureDetails.wiredAtFar || State.infrastructureDetails.wirelessAtFar)) {
         aggregated['SW8'] += switchesToAdd;
     } else if (totalWiredPoEDevices > 0 && currentSwitchCount === 0) {
-        aggregated['SW8'] = 1;
+        // This line is fine, as totalWiredPoEDevices will be 0 on reset
+        aggregated['SW8'] = 1; 
     }
 
     const out = {};
