@@ -1,15 +1,30 @@
 // --- 8. EVENT HANDLERS & ACTIONS ---
 
 /**
- * Shows a system alert modal.
+ * Shows a system alert.
  * @param {string} message - The message to display.
- * @param {string} type - 'info', 'success', 'error', or 'confirm'.
+ * @param {string} type - 'info', 'success', 'error', 'confirm', 'confirm-danger'.
  * @param {Function} onConfirm - Callback function if confirmed.
- * @param {Function} onCancel - Callback function if canceled (for 'confirm' type).
+ * @param {Function} onCancel - Callback function if canceled.
  */
 function showAlert(message, type = 'info', onConfirm = null, onCancel = null) {
     State.systemAlert = { show: true, message, type, onConfirm, onCancel };
-    renderApp();
+    // Re-render the *alerts* specifically. renderApp() will handle the main UI.
+    // This is now handled by renderApp finding the #alert-container
+    renderApp(); 
+
+    // EDIT: Auto-dismiss for toasts (success, info, error)
+    if (type === 'success' || type === 'info' || type === 'error') {
+        setTimeout(() => {
+            // Only hide if it's still the same alert
+            if (State.systemAlert.show && State.systemAlert.message === message) {
+                State.systemAlert = { show: false };
+                // We just re-render the alerts, not the whole app
+                const alertContainer = document.getElementById('alert-container');
+                if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
+            }
+        }, 2500); // 2.5 seconds
+    }
 }
 
 /**
@@ -24,10 +39,9 @@ function handleGlobalClick(e) {
 
     if (action === 'set-step') {
         const newStep = parseInt(target.dataset.step, 10);
-        // EDIT: Removed check that prevents returning to Step 1.
-        // Now only checks if user tries to skip *ahead* without setup. (Request #2)
         if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName)) {
-            showAlert('Please complete Project Setup first.', 'warning');
+            // EDIT: Changed to 'info' for better toast styling
+            showAlert('Please complete Project Setup first.', 'info'); 
             return;
         }
         State.step = newStep;
@@ -76,17 +90,19 @@ function handleGlobalClick(e) {
 
     if (action === 'delete-location') {
         const locId = parseInt(target.dataset.id, 10);
-        State.locations = State.locations.filter(l => l.id !== locId);
-        State.isFinalEditMode = false;
-        renderApp();
+        // EDIT: Show new danger modal
+        showAlert('Delete this location?', 'confirm-danger', () => {
+            State.locations = State.locations.filter(l => l.id !== locId);
+            State.isFinalEditMode = false;
+            renderApp();
+        });
     }
 
-    // EDIT: Add handler for new "Reset System" button (Request #5)
     if (action === 'reset-system') {
+        // EDIT: 'confirm' type will now render the new styled modal
         showAlert('Are you sure you want to reset all quantities?', 'confirm', () => {
             State.locations = [];
             State.configProducts = {};
-            // Assumes initialProducts is available globally from js/state.js
             initialProducts.forEach(p => { State.configProducts[p.id] = 0; });
             State.infrastructureDetails = {
                 isMultiSite: 'no',
@@ -96,9 +112,9 @@ function handleGlobalClick(e) {
                 needsWalkieTalkieInterface: false,
             };
             State.isFinalEditMode = false;
-            cachedConfig = {}; // Clear calculation cache (assumes cachedConfig is global)
-            lastLocationsHash = ""; // Clear cache hash (assumes lastLocationsHash is global)
-            if (State.step !== 2) State.step = 3; // Go back to locations step
+            cachedConfig = {}; 
+            lastLocationsHash = ""; 
+            if (State.step !== 2) State.step = 3; 
             renderApp();
             showAlert('System has been reset.', 'success');
         });
@@ -121,13 +137,17 @@ function handleGlobalClick(e) {
     if (action === 'alert-confirm') {
         if (State.systemAlert.onConfirm) State.systemAlert.onConfirm();
         State.systemAlert = { show: false };
-        renderApp();
+        // Re-render alerts (which will be empty)
+        const alertContainer = document.getElementById('alert-container');
+        if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
     }
 
     if (action === 'alert-cancel') {
         if (State.systemAlert.onCancel) State.systemAlert.onCancel();
         State.systemAlert = { show: false };
-        renderApp();
+        // Re-render alerts (which will be empty)
+        const alertContainer = document.getElementById('alert-container');
+        if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
     }
 
     if (action === 'save-config') {
@@ -144,7 +164,7 @@ function handleGlobalClick(e) {
         if (cfg) {
             State.projectDetails.configName = cfg.name;
             State.projectDetails.userName = cfg.user;
-            State.projectDetails.userEmail = cfg.email || ""; // Load email
+            State.projectDetails.userEmail = cfg.email || ""; 
             State.locations = JSON.parse(JSON.stringify(cfg.locations || []));
             const loadedProducts = cfg.products || {};
             State.configProducts = initialProducts.reduce((acc, p) => {
@@ -169,10 +189,22 @@ function handleGlobalClick(e) {
     if (action === 'delete-saved') {
         const id = parseInt(target.dataset.id, 10);
         const name = target.dataset.name || 'this configuration';
-        showAlert(`Delete '${name}'? This cannot be undone.`, 'confirm', () => {
+        // EDIT: Changed to 'confirm-danger'
+        showAlert(`Delete '${name}'? This cannot be undone.`, 'confirm-danger', () => {
             State.savedConfigs = State.savedConfigs.filter(c => c.id !== id);
             saveConfigs();
             renderApp();
+            showAlert('Configuration deleted.', 'success');
+        });
+    }
+
+    // EDIT: Added handler for "Delete All"
+    if (action === 'delete-all-saved') {
+        showAlert('Delete ALL saved configurations? This cannot be undone.', 'confirm-danger', () => {
+            State.savedConfigs = [];
+            saveConfigs();
+            renderApp();
+            showAlert('All configurations deleted.', 'success');
         });
     }
 }
@@ -284,9 +316,8 @@ function setupLocationModalFieldReactivity() {
 function openLocationModal(location = null) {
     State.editingLocationId = location ? location.id : null;
     State.isLocationModalOpen = true;
-    renderApp(); // Render the modal structure
+    renderApp(); 
 
-    // Now manipulate the DOM elements of the modal
     const nameInput = byld('loc-name');
     const nameError = byld('loc-name-error');
     const saveBtn = byld('save-location-btn');
@@ -298,21 +329,18 @@ function openLocationModal(location = null) {
 
     if (location) {
         if (nameInput) nameInput.value = location.name;
-        // Values are set by renderLocationModal's readValue function
         if (baseMountSelect) baseMountSelect.value = location.keyPanelMount || 'desktop';
         if (hdCheckbox) hdCheckbox.checked = location.isHeavyDuty || false;
         if (existingHeadsetsCheckbox) existingHeadsetsCheckbox.checked = (location.headsetSplit?.customerSupplied > 0);
         if (saveBtn) saveBtn.textContent = 'Save Changes';
     } else {
         if (nameInput) nameInput.value = "";
-        // Values are set by renderLocationModal's readValue function (which returns 0)
         if (baseMountSelect) baseMountSelect.value = 'desktop';
         if (hdCheckbox) hdCheckbox.checked = false;
         if (existingHeadsetsCheckbox) existingHeadsetsCheckbox.checked = false;
         if (saveBtn) saveBtn.textContent = 'Add Location';
     }
 
-    // Need to manually call this to set initial UI state
     setupLocationModalFieldReactivity();
 }
 
@@ -439,7 +467,8 @@ function saveCurrentConfig() {
     const validationResult = runValidationChecks(Object.entries(finalProductsToSave).map(([id, count]) => ({ ...getProduct(id), count })));
 
     if (!State.projectDetails.configName || !State.projectDetails.userName) {
-        showAlert('Please enter a Configuration Name and Your Name in Step 2 before saving.', 'warning');
+        // EDIT: Changed to 'info' for better toast styling
+        showAlert('Please enter a Configuration Name and Your Name in Step 2 before saving.', 'info');
         State.step = 2;
         renderApp();
         const configNameInput = byld('configName');
@@ -453,7 +482,7 @@ function saveCurrentConfig() {
         id: Date.now(),
         name: State.projectDetails.configName,
         user: State.projectDetails.userName,
-        email: State.projectDetails.userEmail, // Save email
+        email: State.projectDetails.userEmail, 
         products: { ...finalProductsToSave },
         locations: [...State.locations],
         infrastructure: { ...State.infrastructureDetails },
@@ -480,15 +509,14 @@ async function handleSaveAndNotify() {
 
     const didSave = saveCurrentConfig();
     if (!didSave) {
-        return; // saveCurrentConfig shows its own error
+        return; 
     }
 
     State.isSending = true;
-    renderApp(); // Re-render to show "Sending..."
+    renderApp(); 
     showAlert('Sending email...', 'info');
 
     try {
-        // 1. Generate the form data
         const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
         const { list, equipmentCost, labor, programming, grand } = computeFromProducts(finalProductsMap);
         const filteredList = list.filter(p => p.count > 0 && p.id !== 'HSETCUST').sort((a, b) => a.name.localeCompare(b.name));
@@ -500,9 +528,8 @@ async function handleSaveAndNotify() {
         if (State.projectDetails.userEmail) {
             formData.append('_replyto', State.projectDetails.userEmail);
         }
-        formData.append('---', '---'); // Separator
+        formData.append('---', '---'); 
 
-        // Add each line item
         let itemIndex = 1;
         filteredList.forEach(p => {
             const lineItem = `(x${p.count}) ${escapeHtml(p.name)} --- ${fmt(p.price * p.count)}`;
@@ -510,14 +537,12 @@ async function handleSaveAndNotify() {
             itemIndex++;
         });
 
-        // Add Summary
-        formData.append('--- Summary ---', '---'); // Separator
+        formData.append('--- Summary ---', '---'); 
         formData.append('Equipment_Total', fmt(equipmentCost));
         formData.append('Labor', fmt(labor));
         formData.append('Programming', fmt(programming));
         formData.append('GRAND_TOTAL', fmt(grand));
 
-        // 2. Send the Form Data
         const response = await fetch(FORM_ENDPOINT, {
             method: 'POST',
             body: formData,
@@ -538,6 +563,6 @@ async function handleSaveAndNotify() {
     }
 
     State.isSending = false;
-    renderApp(); // Re-render to reset button
+    renderApp(); 
 }
 
