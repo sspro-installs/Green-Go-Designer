@@ -29,7 +29,9 @@ function renderHeader() {
 <div class="no-print flex-between items-center border-b border-gray-700 pb-2 mb-8">
     <div class="flex flex-col">
         <h1 class="text-3xl font-extrabold text-green-400">Green-GO Dynamic System Designer</h1>
+        <!-- EDIT: Removed CRC Logo line from here -->
     </div>
+    <!-- EDIT 1 (Last time): Set height to h-16 (4rem) to match left column height. flex-between handles right-justification. (Request #1) -->
     <img src="${imageMap.SS_LOGO}" alt="S&S Logo" class="h-16 w-auto object-contain" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/100x48/ffffff/111827?text=SS'">
 </div>`;
 }
@@ -48,6 +50,7 @@ function renderProgress() {
     ${steps.map((s, idx) => `
     <div data-action="set-step" data-step="${idx + 1}"
         class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${
+            // EDIT 2 (Last time): Modified logic to only block *future* steps (Request #2)
             idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         } ${
             idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')
@@ -59,6 +62,7 @@ function renderProgress() {
 }
 
 function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand) {
+    // EDIT 3 (Last time): Simplified cost section text (Request #11) and added margin-top (Request #12 & #14)
     const costSection = equipmentCost > 0 ?
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(equipmentCost)}</span>
@@ -73,6 +77,8 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
             <span class="text-red-400">${fmt(grand)}</span>
         </div>`
         :
+        // EDIT 4 (Last time): Added $0 values for when cost is 0 (Request #10)
+        // EDIT 5 (Last time): Simplified text (Request #11) and added margin-top (Request #12 & #14)
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(0)}</span>
         </div>
@@ -90,6 +96,7 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 <div class="space-y-8 no-print">
     <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
         <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <!-- EDIT 6 (Last time): Wrapped icon in span to constrain size (Request #3) -->
             <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
             Project Summary
         </h2>
@@ -101,6 +108,7 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
         ${costSection}
     </div>
     
+    <!-- EDIT 7 (Last time): Added "Reset System" button card (Request #5) -->
     <div class="card p-4">
         <button data-action="reset-system" class="w-full btn bg-red-600 hover:bg-red-700 text-white py-2">Reset Current System</button>
         <p class="text-xs text-gray-400 mt-2 text-center">This resets all quantities to zero, but keeps your project name and email.</p>
@@ -111,6 +119,9 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 }
 
 function renderApp() {
+    // EDIT: Removed logic that blocked returning to Step 1
+    // if (State.isFinalEditMode && State.step === 1) State.step = 5;
+
     if (State.isCalculating) {
         document.getElementById('app').innerHTML = `<div class="text-center p-10"><h2 class="text-2xl font-semibold text-green-400">Loading Pricing...</h2></div>`;
         return;
@@ -141,8 +152,11 @@ function renderApp() {
     else stepContent = renderStep5Review(displayList, { equipmentCost, devicesCount, headsetsCount, labor, programming, grand });
 
     const html = `
+    <!-- EDIT: Added alert-container for toasts -->
+    <div id="alert-container" class="fixed top-0 left-0 right-0 z-modal" style="pointer-events: none;">
+        ${renderSystemAlerts()}
+    </div>
     ${renderHeader()}
-    ${renderSystemAlert()} 
     ${State.isLocationModalOpen ? renderLocationModal() : ""}
     ${renderProgress()}
     <div class="grid lg:grid-cols-3 gap-8 p-0 sm:p-4">
@@ -155,24 +169,7 @@ function renderApp() {
     </div>
     ${renderPrintSection(displayList, { equipmentCost, labor, programming, grand })}
     `;
-    // We render alerts into the 'app' div, but the new toasts need to be outside.
-    // So we render the main app, then check if we need to render a toast *outside* the app div.
     document.getElementById('app').innerHTML = html;
-    
-    const alertContainer = document.getElementById('alert-container') || createAlertContainer();
-    alertContainer.innerHTML = renderSystemAlerts();
-}
-
-/**
- * Creates a dedicated container for alerts outside the main #app div.
- * This is crucial for toasts to overlay everything properly.
- */
-function createAlertContainer() {
-    let container = document.createElement('div');
-    container.id = 'alert-container';
-    container.className = 'z-modal';
-    document.body.appendChild(container);
-    return container;
 }
 
 function renderStep1Overview() {
@@ -254,6 +251,7 @@ function renderStep2() {
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userName" type="text" value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
         </div>
         <div>
+            <!-- EDIT: Removed "(Optional, for Reply-To)" -->
             <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
         </div>
@@ -266,6 +264,7 @@ function renderStep3LocationManager(aggregatedBOM) {
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
+    <!-- EDIT: Added description paragraph -->
     <p class="text-sm text-gray-300 -mt-4">
         A Location represents a physical area where communication devices are needed - such as Stage, FOH, or Backstage. Defining locations helps organize your system and plan communication paths clearly.
     </p>
@@ -384,12 +383,13 @@ function renderStep5Review(productsToDisplay, totals) {
             ...g,
             products: sortedProducts.filter(p => p.group === g.name)
         };
-    }).filter(g => g && g.products.length > 0);
+    }).filter(g => g && g.products.length > 0); // Also filter out groups with no products to show
 
     const getImageTag = (id) => {
         const url = imageMap[id];
         if (!url) return "";
         const altText = getProduct(id)?.name || 'Product';
+        // EDIT: Removed 'bg-white' class
         return `<img loading="lazy" src="${url}" alt="${altText}" class="img-bom-thumb hidden sm:block p-1" onerror="this.style.display='none'" />`;
     };
 
@@ -403,6 +403,7 @@ function renderStep5Review(productsToDisplay, totals) {
 
     <div class="p-4 shadow rounded-lg ${validation.status === 'PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
         <h3 class="lg:text-lg font-bold flex items-center ${validation.status === 'PASS' ? 'text-green-400' : 'text-red-400'}">
+            <!-- EDIT: Wrapped icon in span and set size -->
             <span class="w-16 h-16 mr-2">
                 ${validation.status === 'PASS' ? Icons.CheckCircle('w-16 h-16') : Icons.AlertCircle('w-16 h-16')}
             </span>
@@ -415,6 +416,7 @@ function renderStep5Review(productsToDisplay, totals) {
         ${groups.map(group => `
         <div class="space-y-3">
             <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
+                <!-- EDIT: Wrapped icon in span and set size -->
                 <span class="w-16 h-16 mr-2">
                     ${Icons[group.icon] ? Icons[group.icon]('w-16 h-16 text-green-400') : ""}
                 </span>
@@ -430,6 +432,7 @@ function renderStep5Review(productsToDisplay, totals) {
                         <div class="text-sm font-bold text-indigo-400 mt-1">${fmt(item.price || 0)}</div>
                     </div>
                 </div>
+                <!-- EDIT: Replaced button layout with bom-control classes -->
                 <div class="bom-control ml-4">
                     <button data-action="dec-item" data-id="${item.id}" class="bom-control-btn bom-minus">-</button>
                     <span class="bom-count ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
@@ -459,16 +462,20 @@ function renderStep5Review(productsToDisplay, totals) {
 function renderSavedConfigs() {
     return `
 <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
-    <!-- EDIT: Added flex-between and "Delete All" button -->
+    <!-- EDIT: Added flex-between and Delete All button -->
     <div class="flex-between items-center mb-4">
         <h2 class="text-2xl font-bold text-white flex items-center">
+            <!-- EDIT: Wrapped icon in span to constrain size -->
             <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
             Saved (${State.savedConfigs.length})
         </h2>
-        <!-- EDIT: New "Delete All" button -->
-        <button data-action="delete-all-saved" class="btn bg-red-800 hover:bg-red-700 text-red-100 px-3 py-1 text-sm ${State.savedConfigs.length === 0 ? 'hidden' : ''}">
-            ${Icons.Trash2('w-4 h-4 mr-1')} Delete All
+        <!-- EDIT: Added Delete All button -->
+        ${State.savedConfigs.length > 0 ? `
+        <button data-action="delete-all-saved" class="btn btn-secondary bg-red-800 hover:bg-red-700 text-red-100 px-3 py-1 text-sm">
+            ${Icons.Trash2('w-4 h-4 mr-1')}
+            Delete All
         </button>
+        ` : ''}
     </div>
     <div class="space-y-3">
         ${State.savedConfigs.length === 0 ? '<p class="text-gray-400">No saved configurations</p>' : State.savedConfigs.map(cfg => `
@@ -477,6 +484,7 @@ function renderSavedConfigs() {
                 <p class="font-semibold text-gray-100">${escapeHtml(cfg.name)}</p>
                 <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost || 0)}</p>
             </div>
+            <!-- EDIT: Restyled Load/Delete buttons -->
             <div class="flex space-x-2">
                 <button data-action="load-config" data-id="${cfg.id}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Load</button>
                 <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Delete</button>
@@ -488,70 +496,61 @@ function renderSavedConfigs() {
 }
 
 /**
- * Renders the system alert. This is now split into toasts and modals.
- * This function is called by renderApp() and placed in the #alert-container
+ * EDIT: This function now renders *all* active alerts.
+ * It's split into Modals (which block UI) and Toasts (which overlay).
  */
 function renderSystemAlerts() {
     if (!State.systemAlert.show) return "";
 
-    const { type, message } = State.systemAlert;
+    const alert = State.systemAlert;
+    const type = alert.type;
 
-    // RENDER TOAST NOTIFICATION (auto-dismiss)
-    if (type === 'success' || type === 'info' || type === 'error') {
-        let icon;
-        let styles;
-        if (type === 'success') {
-            icon = Icons.CheckCircle('w-6 h-6 text-green-400');
-            styles = 'bg-green-900 border-green-700 text-green-300';
-        } else if (type === 'error') {
-            icon = Icons.AlertCircle('w-6 h-6 text-red-400');
-            styles = 'bg-red-900 border-red-700 text-red-300';
-        } else {
-            icon = Icons.AlertCircle('w-6 h-6 text-yellow-400'); // 'info' or 'warning'
-            styles = 'bg-yellow-900 border-yellow-700 text-yellow-300';
-        }
-
-        return `
-        <div class="toast-notification ${styles}" role="alert">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">${icon}</div>
-                <p class="ml-3 font-medium">${escapeHtml(message)}</p>
-                <button data-action="alert-confirm" class="ml-4 p-1 text-gray-400 hover:text-white">
-                    &times;
-                </button>
-            </div>
-        </div>`;
-    }
-
-    // RENDER CONFIRMATION MODAL (manual dismiss)
+    // Render MODALS (confirm, confirm-danger)
     if (type === 'confirm' || type === 'confirm-danger') {
-        let icon;
-        let confirmStyles;
-        if (type === 'confirm-danger') {
-            icon = Icons.AlertCircle('w-12 h-12 text-red-400');
-            confirmStyles = 'bg-red-600 hover:bg-red-700 text-white';
-        } else {
-            icon = Icons.AlertCircle('w-12 h-12 text-green-400');
-            confirmStyles = 'bg-green-600 hover:bg-green-700 text-white';
-        }
+        const isDanger = type === 'confirm-danger';
+        const icon = isDanger ? Icons.AlertCircle('w-6 h-6 text-red-400') : Icons.CheckCircle('w-6 h-6 text-green-400');
+        const bgColor = isDanger ? 'bg-red-800 border-red-700' : 'bg-green-800 border-green-700';
+        const confirmBtnColor = isDanger ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700';
+        const textColor = isDanger ? 'text-red-100' : 'text-green-100';
 
         return `
-        <div class="modal-backdrop">
-            <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
-                <div class="p-6 text-center">
-                    <div class="flex justify-center">${icon}</div>
-                    <h3 class="mt-4 text-lg font-medium text-gray-100">Are you sure?</h3>
-                    <p class="mt-2 text-sm text-gray-400">${escapeHtml(message)}</p>
+        <div class="modal-backdrop z-modal" style="pointer-events: auto;">
+            <div class="p-6 rounded-xl shadow-2xl w-full max-w-md ${bgColor} border ${textColor}">
+                <div class="flex space-x-3">
+                    <div class="flex-shrink-0">${icon}</div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-lg text-white">${escapeHtml(alert.message || "")}</p>
+                    </div>
                 </div>
-                <div class="flex justify-end space-x-3 bg-gray-700 px-4 py-3 rounded-b-xl">
-                    <button data-action="alert-cancel" class="btn btn-secondary px-4 py-2">Cancel</button>
-                    <button data-action="alert-confirm" class="btn ${confirmStyles} px-4 py-2">Confirm</button>
+                <div class="flex justify-end space-x-3 mt-5">
+                    <button data-action="alert-cancel" class="px-4 py-2 text-sm bg-gray-600 text-gray-200 rounded-md border border-gray-500 hover:bg-gray-500 font-medium">Cancel</button>
+                    <button data-action="alert-confirm" class="px-4 py-2 text-sm text-white rounded-md ${confirmBtnColor} font-medium">Confirm</button>
                 </div>
             </div>
         </div>`;
     }
 
-    return ""; // Fallback
+    // Render TOASTS (success, error, info)
+    // These render inside the #alert-container which is position: fixed
+    let style, icon;
+    if (type === 'success') {
+        style = 'bg-green-700 text-white border-green-600';
+        icon = Icons.CheckCircle('w-5 h-5');
+    } else if (type === 'error') {
+        style = 'bg-red-700 text-white border-red-600';
+        icon = Icons.AlertCircle('w-5 h-5');
+    } else { // 'info'
+        style = 'bg-yellow-700 text-white border-yellow-600';
+        icon = Icons.AlertCircle('w-5 h-5');
+    }
+
+    return `
+    <div class="toast-notification ${style}" style="pointer-events: auto;">
+        <div class="flex items-center space-x-2">
+            ${icon}
+            <span class="font-medium">${escapeHtml(alert.message)}</span>
+        </div>
+    </div>`;
 }
 
 
@@ -590,8 +589,11 @@ function renderLocationModal() {
         return 0;
     };
 
+    // EDIT: Increased image sizes
+    // w-10 h-10 -> w-12 h-12
+    // w-8 h-8 -> w-10 h-10
     return `
-<div class="modal-backdrop z-modal">
+<div class="modal-backdrop z-modal" style="pointer-events: auto;">
     <div class="modal-content">
         <h3 class="text-2xl font-bold mb-4 border-b border-gray-600 pb-2 text-green-400">${isEditing ? 'Edit Location' : 'Add Location'}</h3>
         <div class="space-y-4 overflow-y-auto pr-2" style="max-height: 60vh;">
@@ -711,6 +713,7 @@ function renderPrintSection(productsToDisplay, totals) {
     <div class="flex-between border-b pb-2 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-green-800">Green-GO System Quote</h1>
+            <!-- EDIT: Removed CRC Logo line from here -->
             <div class="mt-4 text-sm">
                 <p><strong>Project:</strong> ${escapeHtml(State.projectDetails.configName || 'N/A')}</p>
                 <p><strong>Designer:</strong> ${escapeHtml(State.projectDetails.userName || 'N/A')}</p>
@@ -755,6 +758,7 @@ function renderPrintSection(productsToDisplay, totals) {
             <span>Equipment Total:</span>
             <span class="text-green-600">${fmt(equipmentCost)}</span>
         </div>
+        <!-- EDIT: Removed percentages -->
         <div class="flex-between">
             <span>Labor:</span>
             <span class="font-medium">${fmt(labor)}</span>
