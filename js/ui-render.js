@@ -184,7 +184,7 @@ function renderStep1Overview() {
 
     <!-- What Is Green-GO? -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_WHAT_IS}" alt="Green-GO Keystation in use" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=What+Is+Green-GO%3F'">
+        <img class="w-full h-56 object-cover" src="${imageMap.CHURCH_WHAT_IS}" alt="Green-GO Keystation in use" onerror="this.src='https://placehold.co/600x224/1f2937/4ade80?text=What+Is+Green-GO%3F'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">What Is Green-GO?</h2>
             <p class="text-sm text-gray-300">Green-GO is like a high-tech walkie-talkie system made for churches. It lets your whole production team stay connected—sound, lighting, cameras, and worship leaders—all talking clearly without shouting or waving hands. It works through the same kind of cables your church already uses for the internet.</p>
@@ -193,7 +193,7 @@ function renderStep1Overview() {
 
     <!-- Why Churches Use It -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_WHY}" alt="Man behind camera in church" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Why+Churches+Use+It'">
+        <img class="w-full h-56 object-cover" src="${imageMap.CHURCH_WHY}" alt="Man behind camera in church" onerror="this.src='https://placehold.co/600x224/1f2937/4ade80?text=Why+Churches+Use+It'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">Why Churches Use It</h2>
             <p class="text-sm text-gray-300">During worship, services, or special events, timing matters. Green-GO helps volunteers and staff stay calm and coordinated—from lighting cues to livestream direction. It brings clear communication and teamwork to every part of the service.</p>
@@ -202,7 +202,7 @@ function renderStep1Overview() {
 
     <!-- Main Parts of the System -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Main+Parts'">
+        <img class="w-full h-56 object-cover" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x224/1f2937/4ade80?text=Main+Parts'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">Main Parts of the System</h2>
             <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
@@ -218,7 +218,7 @@ function renderStep1Overview() {
 
     <!-- Real Church Examples -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_EXAMPLES}" alt="Audio and lighting booth" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Real+Examples'">
+        <img class="w-full h-56 object-cover" src="${imageMap.CHURCH_EXAMPLES}" alt="Audio and lighting booth" onerror="this.src='https://placehold.co/600x224/1f2937/4ade80?text=Real+Examples'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">Real Church Examples</h2>
             <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
@@ -233,7 +233,7 @@ function renderStep1Overview() {
 
     <!-- Why It’s Great for Churches -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_GREAT_FOR}" alt="Production team in headsets" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Why+It%27s+Great'">
+        <img class="w-full h-56 object-cover" src="${imageMap.CHURCH_GREAT_FOR}" alt="Production team in headsets" onerror="this.src='https://placehold.co/600x224/1f2937/4ade80?text=Why+It%27s+Great'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">Why It’s Great for Churches</h2>
             <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
@@ -768,7 +768,7 @@ function renderPrintSection(productsToDisplay, totals) {
             <tr class="border-b border-gray-200">
                 <td class="p-2">${escapeHtml(p.sku)}</td>
                 <td class="p-2">${escapeHtml(p.name)}<br><span class="text-xs text-gray-500">${escapeHtml(p.role)}</span></td>
-                <td class="text-right p-2">${p.count}</td>
+                <td classs="text-right p-2">${p.count}</td>
                 <td class="text-right p-2">${fmt(p.price)}</td>
                 <td class="text-right p-2">${fmt(p.price * p.count)}</td>
             </tr>
@@ -794,7 +794,7 @@ function renderPrintSection(productsToDisplay, totals) {
         </div>
         <div class="flex-between font-extrabold text-2xl mt-4 border-t-4 pt-4 border-green-700">
             <span>GRAND TOTAL:</span>
-            <span class="text-red-600">${fmt(grand)}</span>
+            <span classs="text-red-600">${fmt(grand)}</span>
         </div>
     </div>
 
