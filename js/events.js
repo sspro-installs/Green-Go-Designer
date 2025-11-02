@@ -530,6 +530,47 @@ async function handleSaveAndNotify() {
         }
         formData.append('---', '---'); 
 
+        // --- NEW LOCATIONS SECTION ---
+        formData.append('--- Locations Breakdown ---', '---');
+        if (State.locations.length === 0) {
+            formData.append('Locations', 'No locations were defined.');
+        } else {
+            State.locations.forEach((loc, index) => {
+                const parts = [];
+                try {
+                    if (loc.keyPanelCount > 0) parts.push(`${loc.keyPanelCount}x ${getProduct(loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD').name}`);
+                    if (loc.wiredCount > 0) parts.push(`${loc.wiredCount}x ${getProduct('GBPX').name}`);
+                    if (loc.wallStationCount > 0) parts.push(`${loc.wallStationCount}x ${getProduct('WSX').name}`);
+                    if (loc.wirelessCount > 0) {
+                        const wirelessId = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
+                        parts.push(`${loc.wirelessCount}x ${getProduct(wirelessId).name}`);
+                    }
+                    if (loc.beaconCount > 0) parts.push(`${loc.beaconCount}x ${getProduct('BCON').name}`);
+                    
+                    // Headsets
+                    const headsetParts = [];
+                    if (loc.headsetSplit?.stdOneEar > 0) headsetParts.push(`${loc.headsetSplit.stdOneEar}x ${getProduct('HSET1E').name}`);
+                    if (loc.headsetSplit?.stdDualEar > 0) headsetParts.push(`${loc.headsetSplit.stdDualEar}x ${getProduct('HSET2E').name}`);
+                    if (loc.headsetSplit?.comfortOneEar > 0) headsetParts.push(`${loc.headsetSplit.comfortOneEar}x ${getProduct('HSETC1E').name}`);
+                    if (loc.headsetSplit?.comfortDualEar > 0) headsetParts.push(`${loc.headsetSplit.comfortDualEar}x ${getProduct('HSETC2E').name}`);
+                    if (loc.headsetSplit?.handset > 0) headsetParts.push(`${loc.headsetSplit.handset}x ${getProduct('TELH').name}`);
+                    if (loc.headsetSplit?.customerSupplied > 0) headsetParts.push(`${loc.headsetSplit.customerSupplied}x Customer Supplied`);
+                    
+                    if (headsetParts.length > 0) {
+                        parts.push(`Headsets: [${headsetParts.join(', ')}]`);
+                    }
+                } catch (e) {
+                    console.error("Error getting product name in email builder:", e);
+                    parts.push("Error processing location items.");
+                }
+
+                const locationSummary = parts.length > 0 ? parts.join(' | ') : 'No devices in this location.';
+                formData.append(`Location_${(index + 1).toString().padStart(2, '0')}`, `${loc.name}: ${locationSummary}`);
+            });
+        }
+        formData.append('--- Bill of Materials ---', '---');
+        // --- END NEW SECTION ---
+
         let itemIndex = 1;
         filteredList.forEach(p => {
             const lineItem = `(x${p.count}) ${escapeHtml(p.name)} --- ${fmt(p.price * p.count)}`;
@@ -565,4 +606,3 @@ async function handleSaveAndNotify() {
     State.isSending = false;
     renderApp(); 
 }
-
