@@ -173,81 +173,89 @@ function renderApp() {
 }
 
 function renderStep1Overview() {
+    // This content is new, based on the user's HTML file and new images.
+    // It's styled with Tailwind to match the application's theme.
     return `
 <div class="space-y-6 text-center">
-    <h1 class="text-3xl font-extrabold text-white">Understand Your System</h1>
-    <p class="text-lg text-green-400 max-w-3xl mx-auto">Get familiar with the parts you'll need before starting the designer.</p>
-    <p class="text-base text-gray-400 max-w-2xl mx-auto">Here are the key components of a Green-GO intercom system.</p>
+    <h1 class="text-3xl font-extrabold text-white">How Green-GO Helps Church Teams Stay Connected</h1>
 </div>
-<main class="flex-grow mt-8">
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.WSX}" alt="Wall Panel" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wall+Panel'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Wall Panels</h3>
-                <p class="text-sm text-gray-300">Fixed intercom stations for specific locations, control rooms, or studios.</p>
-            </div>
-        </div>
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.GBPX}" alt="Wired Beltpack" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wired+Beltpack'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Wired Beltpacks</h3>
-                <p class="text-sm text-gray-300">Portable intercom units worn by crew members for communication on the move.</p>
-            </div>
-        </div>
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.WBPX}" alt="Wireless Beltpack" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Wireless+Beltpack'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Wireless Beltpacks</h3>
-                <p class="text-sm text-gray-300">Cord-free versions that provide maximum flexibility and freedom in larger spaces.</p>
-            </div>
-        </div>
 
-        <!-- NEW: Headset Card Added -->
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <div class="w-full h-auto p-4 bg-gray-800 flex justify-center items-center" style="max-height: 200px;">
-                <img class="h-full w-1/2 object-contain" src="${imageMap.HSET2E}" alt="Dual Headset" onerror="this.src='https://placehold.co/300x200/1f2937/4ade80?text=Headset'">
-                <img class="h-full w-1/2 object-contain" src="${imageMap.HSET1E}" alt="Single Headset" onerror="this.src='https://placehold.co/300x200/1f2937/4ade80?text=Headset'">
-            </div>
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Headsets</h3>
-                <p class="text-sm text-gray-300">Clear and comfortable headsets for every user, available in single-ear and dual-ear models.</p>
-            </div>
-        </div>
+<main class="flex-grow mt-8 space-y-6">
 
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.INTERFACEX}" alt="Interfaces" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Interfaces'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Interfaces</h3>
-                <p class="text-sm text-gray-300">Bridge your Green-GO network with external analog, 2-wire, 4-wire, or radio systems.</p>
-            </div>
-        </div>
-        
-        <!-- MOVED: Network Switches card moved here -->
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SW8}" alt="Network Switch" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Network+Switch'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Network Switches</h3>
-                <p class="text-sm text-gray-300">The heart of communication. Connects all Green-GO devices via standard Ethernet.</p>
-            </div>
-        </div>
-
-        <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600 transform transition duration-300 hover:scale-[1.02] hover:shadow-green-500/20">
-            <img class="w-full h-auto object-contain p-4 bg-gray-800" style="max-height: 200px;" src="${imageMap.SOFTWARE}" alt="Software" onerror="this.src='https://placehold.co/600x400/1f2937/4ade80?text=Software'">
-            <div class="p-6">
-                <h3 class="text-xl font-semibold text-green-400 mb-2">Software</h3>
-                <p class="text-sm text-gray-300">Configure, monitor, and manage your entire intercom system from a computer.</p>
-            </div>
+    <!-- What Is Green-GO? -->
+    <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_WHAT_IS}" alt="Green-GO Keystation in use" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=What+Is+Green-GO%3F'">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-green-400 mb-2">What Is Green-GO?</h2>
+            <p class="text-sm text-gray-300">Green-GO is like a high-tech walkie-talkie system made for churches. It lets your whole production team stay connected—sound, lighting, cameras, and worship leaders—all talking clearly without shouting or waving hands. It works through the same kind of cables your church already uses for the internet.</p>
         </div>
     </div>
+
+    <!-- Why Churches Use It -->
+    <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_WHY}" alt="Man behind camera in church" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Why+Churches+Use+It'">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-green-400 mb-2">Why Churches Use It</h2>
+            <p class="text-sm text-gray-300">During worship, services, or special events, timing matters. Green-GO helps volunteers and staff stay calm and coordinated—from lighting cues to livestream direction. It brings clear communication and teamwork to every part of the service.</p>
+        </div>
+    </div>
+
+    <!-- Main Parts of the System -->
+    <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Main+Parts'">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-green-400 mb-2">Main Parts of the System</h2>
+            <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
+                <li><b>Beltpacks:</b> Small boxes that clip to your belt—talk and listen using a headset.</li>
+                <li><b>Wireless Packs & Antennas:</b> Let people move freely around the church or stage.</li>
+                <li><b>Stations:</b> Used by tech directors or worship leaders to talk to everyone.</li>
+                <li><b>Cue Lights:</b> Flash when it’s time for a cue or transition.</li>
+                <li><b>Interfaces:</b> Connect Green-GO to the sound board or livestream setup.</li>
+                <li><b>Chargers:</b> Keep everything powered and ready for Sunday morning.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Real Church Examples -->
+    <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_EXAMPLES}" alt="Audio and lighting booth" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Real+Examples'">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-green-400 mb-2">Real Church Examples</h2>
+            <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
+                <li><b>Sound Booth:</b> The audio engineer can quietly talk to camera operators or worship leaders.</li>
+                <li><b>Camera Crew:</b> Operators get instant direction during the livestream—no confusion.</li>
+                <li><b>Lighting Team:</b> Knows exactly when to trigger scenes or transitions.</li>
+                <li><b>Stage Manager:</b> Cues the pastor, choir, or worship band right on time.</li>
+                <li><b>Worship Leader:</b> Gets updates through a headset instead of guessing or texting.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Why It’s Great for Churches -->
+    <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+        <img class="w-full h-auto object-cover" style="max-height: 250px;" src="${imageMap.CHURCH_GREAT_FOR}" alt="Production team in headsets" onerror="this.src='https://placehold.co/600x250/1f2937/4ade80?text=Why+It%27s+Great'">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold text-green-400 mb-2">Why It’s Great for Churches</h2>
+            <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
+                <li>Everyone stays connected during services and events.</li>
+                <li>Volunteers feel confident and supported.</li>
+                <li>Works with the church’s existing network cables.</li>
+                <li>Clear, reliable sound without delay.</li>
+                <li>Grows with your ministry as your team expands.</li>
+            </ul>
+        </div>
+    </div>
+
 </main>
+
 <footer class="mt-8 pt-6 border-t border-gray-700">
     <button data-action="set-step" data-step="2" class="w-full btn btn-primary py-3 text-lg hover:bg-green-700">
         Start Designing Now &rarr;
     </button>
-</footer>`;
+</footer>
+`;
 }
+
 
 function renderStep2() {
     const disabled = (!State.projectDetails.configName || !State.projectDetails.userName) ? 'disabled' : "";
