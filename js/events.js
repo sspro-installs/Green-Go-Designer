@@ -532,36 +532,44 @@ async function handleSaveAndNotify() {
 
         // --- NEW LOCATIONS SECTION ---
         formData.append('--- Locations Breakdown ---', '---');
+        
+        // Helper function to safely get product name
+        const getProdName = (id) => {
+            try {
+                const product = getProduct(id);
+                return product ? product.name : `[Unknown Product ID: ${id}]`;
+            } catch (e) {
+                console.error(`Error in getProdName(${id}):`, e);
+                return `[Error getting product ${id}]`;
+            }
+        };
+
         if (State.locations.length === 0) {
             formData.append('Locations', 'No locations were defined.');
         } else {
             State.locations.forEach((loc, index) => {
                 const parts = [];
-                try {
-                    if (loc.keyPanelCount > 0) parts.push(`${loc.keyPanelCount}x ${getProduct(loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD').name}`);
-                    if (loc.wiredCount > 0) parts.push(`${loc.wiredCount}x ${getProduct('GBPX').name}`);
-                    if (loc.wallStationCount > 0) parts.push(`${loc.wallStationCount}x ${getProduct('WSX').name}`);
-                    if (loc.wirelessCount > 0) {
-                        const wirelessId = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
-                        parts.push(`${loc.wirelessCount}x ${getProduct(wirelessId).name}`);
-                    }
-                    if (loc.beaconCount > 0) parts.push(`${loc.beaconCount}x ${getProduct('BCON').name}`);
-                    
-                    // Headsets
-                    const headsetParts = [];
-                    if (loc.headsetSplit?.stdOneEar > 0) headsetParts.push(`${loc.headsetSplit.stdOneEar}x ${getProduct('HSET1E').name}`);
-                    if (loc.headsetSplit?.stdDualEar > 0) headsetParts.push(`${loc.headsetSplit.stdDualEar}x ${getProduct('HSET2E').name}`);
-                    if (loc.headsetSplit?.comfortOneEar > 0) headsetParts.push(`${loc.headsetSplit.comfortOneEar}x ${getProduct('HSETC1E').name}`);
-                    if (loc.headsetSplit?.comfortDualEar > 0) headsetParts.push(`${loc.headsetSplit.comfortDualEar}x ${getProduct('HSETC2E').name}`);
-                    if (loc.headsetSplit?.handset > 0) headsetParts.push(`${loc.headsetSplit.handset}x ${getProduct('TELH').name}`);
-                    if (loc.headsetSplit?.customerSupplied > 0) headsetParts.push(`${loc.headsetSplit.customerSupplied}x Customer Supplied`);
-                    
-                    if (headsetParts.length > 0) {
-                        parts.push(`Headsets: [${headsetParts.join(', ')}]`);
-                    }
-                } catch (e) {
-                    console.error("Error getting product name in email builder:", e);
-                    parts.push("Error processing location items.");
+                
+                if (loc.keyPanelCount > 0) parts.push(`${loc.keyPanelCount}x ${getProdName(loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD')}`);
+                if (loc.wiredCount > 0) parts.push(`${loc.wiredCount}x ${getProdName('GBPX')}`);
+                if (loc.wallStationCount > 0) parts.push(`${loc.wallStationCount}x ${getProdName('WSX')}`);
+                if (loc.wirelessCount > 0) {
+                    const wirelessId = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
+                    parts.push(`${loc.wirelessCount}x ${getProdName(wirelessId)}`);
+                }
+                if (loc.beaconCount > 0) parts.push(`${loc.beaconCount}x ${getProdName('BCON')}`);
+                
+                // Headsets
+                const headsetParts = [];
+                if (loc.headsetSplit?.stdOneEar > 0) headsetParts.push(`${loc.headsetSplit.stdOneEar}x ${getProdName('HSET1E')}`);
+                if (loc.headsetSplit?.stdDualEar > 0) headsetParts.push(`${loc.headsetSplit.stdDualEar}x ${getProdName('HSET2E')}`);
+                if (loc.headsetSplit?.comfortOneEar > 0) headsetParts.push(`${loc.headsetSplit.comfortOneEar}x ${getProdName('HSETC1E')}`);
+                if (loc.headsetSplit?.comfortDualEar > 0) headsetParts.push(`${loc.headsetSplit.comfortDualEar}x ${getProdName('HSETC2E')}`);
+                if (loc.headsetSplit?.handset > 0) headsetParts.push(`${loc.headsetSplit.handset}x ${getProdName('TELH')}`);
+                if (loc.headsetSplit?.customerSupplied > 0) headsetParts.push(`${loc.headsetSplit.customerSupplied}x Customer Supplied`);
+                
+                if (headsetParts.length > 0) {
+                    parts.push(`Headsets: [${headsetParts.join(', ')}]`);
                 }
 
                 const locationSummary = parts.length > 0 ? parts.join(' | ') : 'No devices in this location.';
@@ -606,3 +614,4 @@ async function handleSaveAndNotify() {
     State.isSending = false;
     renderApp(); 
 }
+
