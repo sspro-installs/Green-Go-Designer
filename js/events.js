@@ -538,7 +538,11 @@ async function handleSaveAndNotify() {
             try {
                 const product = getProduct(id);
                 if (product) {
-                    return { name: product.name || id, sku: product.sku || 'N/A' };
+                    // Use escapeHtml and fallback for both name and SKU
+                    return { 
+                        name: escapeHtml(product.name || id), 
+                        sku: escapeHtml(product.sku || 'N/A') 
+                    };
                 }
                 return { name: `[Unknown ID: ${id}]`, sku: 'N/A' };
             } catch (e) {
@@ -606,8 +610,9 @@ async function handleSaveAndNotify() {
                     parts.push(`Headsets: [${headsetParts.join(', ')}]`);
                 }
 
+                // Use escapeHtml on the location name itself
                 const locationSummary = parts.length > 0 ? parts.join(' | ') : 'No devices in this location.';
-                formData.append(`Location_${(index + 1).toString().padStart(2, '0')}`, `${loc.name}: ${locationSummary}`);
+                formData.append(`Location_${(index + 1).toString().padStart(2, '0')}`, `${escapeHtml(loc.name)}: ${locationSummary}`);
             });
         }
         formData.append('--- Bill of Materials ---', '---');
