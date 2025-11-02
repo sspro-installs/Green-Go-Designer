@@ -123,7 +123,7 @@ const imageMap = {
     'SW6': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SW6.png',
     'SW18': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SWITCH18.png',
     'WAA': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-WAA.png',
-    'BC6': 'httpss://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BC6.png',
+    'BC6': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BC6.png',
     'HSET1E': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HS200S.png',
     'HSET2E': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HS200D.png',
     'HSETC1E': 'https://sspro-installs.github.io/media-assets/vendors/beyerdynamic/Beyerdynamic-DT280.png',
@@ -131,11 +131,19 @@ const imageMap = {
     'TELH': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HSA05.png',
     'BCON': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-BEACON.png',
     'GMIC300': 'https://raw.githubusercontent.com/sspro-installs/media-assets/main/vendors/greengo/GGO-GNM300.png',
-    'GMIC430': 'httpsInstalls.github.io/media-assets/main/vendors/greengo/GGO-GNM430.png',
+    'GMIC430': 'https://raw.githubusercontent.com/sspro-installs/media-assets/main/vendors/greengo/GGO-GNM430.png',
     'HARN': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-HARNESS.png',
     'RMKI': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-RMKIT.png',
     'PSU1': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-PSU12V.png',
     'NRGP': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-NRGP.png',
     'SFOM': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_SFOM.png',
-    'SOFTWARE': 'https://sspro-installs.github.io/media-assets/vendors/greengo/Green-go-Control.png'
+    'SOFTWARE': 'https://sspro-installs.github.io/media-assets/vendors/greengo/Green-go-Control.png',
+
+    // --- NEW CHURCH IMAGES ADDED ---
+    'CHURCH_WHAT_IS': 'https://sspro-installs.github.io/media-assets/AI created pictures/Multiview, Greengo Keystation, lady.png',
+    'CHURCH_WHY': 'https://sspro-installs.github.io/media-assets/AI created pictures/Man behind camera in church.png',
+    'CHURCH_PARTS': 'https://sspro-installs.github.io/media-assets/vendors/greengo/Greengo gear on table control room.png',
+    'CHURCH_EXAMPLES': 'https://sspro-installs.github.io/media-assets/AI created pictures/Audi-lighting-booth.png',
+    'CHURCH_GREAT_FOR': 'https://sspro-installs.github.io/media-assets/AI created pictures/Production team in headsets.png'
 };
+
