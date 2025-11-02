@@ -533,14 +533,17 @@ async function handleSaveAndNotify() {
         // --- NEW LOCATIONS SECTION ---
         formData.append('--- Locations Breakdown ---', '---');
         
-        // Helper function to safely get product name
-        const getProdName = (id) => {
+        // Helper function to safely get product name and SKU
+        const getProdDetails = (id) => {
             try {
                 const product = getProduct(id);
-                return product ? product.name : `[Unknown Product ID: ${id}]`;
+                if (product) {
+                    return { name: product.name || id, sku: product.sku || 'N/A' };
+                }
+                return { name: `[Unknown ID: ${id}]`, sku: 'N/A' };
             } catch (e) {
-                console.error(`Error in getProdName(${id}):`, e);
-                return `[Error getting product ${id}]`;
+                console.error(`Error in getProdDetails(${id}):`, e);
+                return { name: `[Error: ${id}]`, sku: 'N/A' };
             }
         };
 
@@ -550,23 +553,54 @@ async function handleSaveAndNotify() {
             State.locations.forEach((loc, index) => {
                 const parts = [];
                 
-                if (loc.keyPanelCount > 0) parts.push(`${loc.keyPanelCount}x ${getProdName(loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD')}`);
-                if (loc.wiredCount > 0) parts.push(`${loc.wiredCount}x ${getProdName('GBPX')}`);
-                if (loc.wallStationCount > 0) parts.push(`${loc.wallStationCount}x ${getProdName('WSX')}`);
+                if (loc.keyPanelCount > 0) {
+                    const p = getProdDetails(loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD');
+                    parts.push(`${loc.keyPanelCount}x ${p.name} (${p.sku})`);
+                }
+                if (loc.wiredCount > 0) {
+                    const p = getProdDetails('GBPX');
+                    parts.push(`${loc.wiredCount}x ${p.name} (${p.sku})`);
+                }
+                if (loc.wallStationCount > 0) {
+                    const p = getProdDetails('WSX');
+                    parts.push(`${loc.wallStationCount}x ${p.name} (${p.sku})`);
+                }
                 if (loc.wirelessCount > 0) {
                     const wirelessId = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
-                    parts.push(`${loc.wirelessCount}x ${getProdName(wirelessId)}`);
+                    const p = getProdDetails(wirelessId);
+                    parts.push(`${loc.wirelessCount}x ${p.name} (${p.sku})`);
                 }
-                if (loc.beaconCount > 0) parts.push(`${loc.beaconCount}x ${getProdName('BCON')}`);
+                if (loc.beaconCount > 0) {
+                    const p = getProdDetails('BCON');
+                    parts.push(`${loc.beaconCount}x ${p.name} (${p.sku})`);
+                }
                 
                 // Headsets
                 const headsetParts = [];
-                if (loc.headsetSplit?.stdOneEar > 0) headsetParts.push(`${loc.headsetSplit.stdOneEar}x ${getProdName('HSET1E')}`);
-                if (loc.headsetSplit?.stdDualEar > 0) headsetParts.push(`${loc.headsetSplit.stdDualEar}x ${getProdName('HSET2E')}`);
-                if (loc.headsetSplit?.comfortOneEar > 0) headsetParts.push(`${loc.headsetSplit.comfortOneEar}x ${getProdName('HSETC1E')}`);
-                if (loc.headsetSplit?.comfortDualEar > 0) headsetParts.push(`${loc.headsetSplit.comfortDualEar}x ${getProdName('HSETC2E')}`);
-                if (loc.headsetSplit?.handset > 0) headsetParts.push(`${loc.headsetSplit.handset}x ${getProdName('TELH')}`);
-                if (loc.headsetSplit?.customerSupplied > 0) headsetParts.push(`${loc.headsetSplit.customerSupplied}x Customer Supplied`);
+                if (loc.headsetSplit?.stdOneEar > 0) {
+                    const p = getProdDetails('HSET1E');
+                    headsetParts.push(`${loc.headsetSplit.stdOneEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.stdDualEar > 0) {
+                    const p = getProdDetails('HSET2E');
+                    headsetParts.push(`${loc.headsetSplit.stdDualEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.comfortOneEar > 0) {
+                    const p = getProdDetails('HSETC1E');
+                    headsetParts.push(`${loc.headsetSplit.comfortOneEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.comfortDualEar > 0) {
+                    const p = getProdDetails('HSETC2E');
+                    headsetParts.push(`${loc.headsetSplit.comfortDualEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.handset > 0) {
+                    const p = getProdDetails('TELH');
+                    headsetParts.push(`${loc.headsetSplit.handset}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.customerSupplied > 0) {
+                    const p = getProdDetails('HSETCUST'); // Use helper to get CUST-HSET sku
+                    headsetParts.push(`${loc.headsetSplit.customerSupplied}x ${p.name} (${p.sku})`);
+                }
                 
                 if (headsetParts.length > 0) {
                     parts.push(`Headsets: [${headsetParts.join(', ')}]`);
@@ -581,7 +615,8 @@ async function handleSaveAndNotify() {
 
         let itemIndex = 1;
         filteredList.forEach(p => {
-            const lineItem = `(x${p.count}) ${escapeHtml(p.name)} --- ${fmt(p.price * p.count)}`;
+            // Add SKU to the line item here
+            const lineItem = `(x${p.count}) ${escapeHtml(p.name)} (${escapeHtml(p.sku || 'N/A')}) --- ${fmt(p.price * p.count)}`;
             formData.append(`Item_${itemIndex.toString().padStart(2, '0')}`, lineItem);
             itemIndex++;
         });
