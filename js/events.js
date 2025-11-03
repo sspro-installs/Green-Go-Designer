@@ -13,10 +13,8 @@ function showAlert(message, type = 'info', onConfirm = null, onCancel = null) {
 
     if (type === 'success' || type === 'info' || type === 'error') {
         setTimeout(() => {
-            // Only hide if it's still the same alert
             if (State.systemAlert.show && State.systemAlert.message === message) {
                 State.systemAlert = { show: false };
-                // We just re-render the alerts, not the whole app
                 const alertContainer = document.getElementById('alert-container');
                 if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
             }
@@ -26,11 +24,8 @@ function showAlert(message, type = 'info', onConfirm = null, onCancel = null) {
 
 /**
  * PDF REQ #3b: Adds a flag location if items are manually edited on Step 5.
- * --- UPDATED: This now uses the State.hasManualLocation flag ---
  */
 function addManualLocationFlag() {
-    if (State.hasManualLocation) return; // Don't add more than once
-
     const manualLocName = "Manually added items";
     let exists = State.locations.find(l => l.name === manualLocName);
     if (!exists) {
@@ -46,7 +41,6 @@ function addManualLocationFlag() {
             isManual: true // Add a flag
         });
     }
-    State.hasManualLocation = true; // Set the flag
 }
 
 /**
@@ -61,26 +55,16 @@ function handleGlobalClick(e) {
 
     if (action === 'set-step') {
         const newStep = parseInt(target.dataset.step, 10);
-        
-        // --- UPDATED: Check all 4 required fields ---
-        const isSetupIncomplete = !State.projectDetails.configName || 
-                                  !State.projectDetails.userName || 
-                                  !State.projectDetails.userEmail ||
-                                  !State.projectDetails.organizationName;
-
-        if (newStep > 2 && isSetupIncomplete) {
-            showAlert('Please complete all 4 fields in Project Setup first.', 'info'); 
+        // --- UPDATE: Add organizationName and userEmail to the check ---
+        if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName)) {
+            showAlert('Please complete all fields in Project Setup first.', 'info'); 
             return;
         }
         State.step = newStep;
         renderApp();
     }
 
-    // --- BUG FIX: This check was redundant and breaking the button ---
-    // The logic is now correctly inside the 'set-step' action above.
     if (action === 'start-step2-check') {
-        // This action now just proceeds to step 3,
-        // as the button itself is enabled/disabled by handleProjectDetailsInput.
         State.step = 3;
         renderApp();
     }
@@ -142,7 +126,6 @@ function handleGlobalClick(e) {
                 needsWalkieTalkieInterface: false,
             };
             State.isFinalEditMode = false;
-            State.hasManualLocation = false; // --- ADDED: Reset manual location flag ---
             cachedConfig = {}; 
             lastLocationsHash = ""; 
             if (State.step !== 2) State.step = 3; 
@@ -158,7 +141,7 @@ function handleGlobalClick(e) {
         
         // --- PDF REQ #3b: Add manual location flag ---
         if (State.step === 5) {
-            addManualLocationFlag(); // This function now uses the state flag
+            addManualLocationFlag();
         }
         // --- END REQ #3b ---
 
@@ -172,7 +155,7 @@ function handleGlobalClick(e) {
         
         // --- PDF REQ #3b: Add manual location flag ---
         if (State.step === 5) {
-            addManualLocationFlag(); // This function now uses the state flag
+            addManualLocationFlag();
         }
         // --- END REQ #3b ---
         
@@ -208,7 +191,8 @@ function handleGlobalClick(e) {
             State.projectDetails.configName = cfg.name;
             State.projectDetails.userName = cfg.user;
             State.projectDetails.userEmail = cfg.email || ""; 
-            State.projectDetails.organizationName = cfg.organizationName || ""; // --- UPDATED: Load organizationName ---
+            // --- UPDATE: Load organizationName ---
+            State.projectDetails.organizationName = cfg.organization || ""; // Load new field
             State.locations = JSON.parse(JSON.stringify(cfg.locations || []));
             const loadedProducts = cfg.products || {};
             State.configProducts = initialProducts.reduce((acc, p) => {
@@ -217,13 +201,11 @@ function handleGlobalClick(e) {
             }, {});
             State.infrastructureDetails = {
                 isMultiSite: cfg.infrastructure?.isMultiSite || 'no',
-                farDistance: 'no', // --- UPDATED: Force-remove obsolete "farDistance" ---
-                wirelessAtFar: false,
-                wiredAtFar: false,
+                farDistance: cfg.infrastructure?.farDistance || 'no', // This is OK, it's just loading old data
+                wirelessAtFar: cfg.infrastructure?.wirelessAtFar || false,
+                wiredAtFar: cfg.infrastructure?.wiredAtFar || false,
                 needsWalkieTalkieInterface: cfg.infrastructure?.needsWalkieTalkieInterface || false,
             };
-            // --- ADDED: Check if loaded config has a manual location ---
-            State.hasManualLocation = !!State.locations.find(l => l.name === "Manually added items");
             State.step = 5;
             State.isFinalEditMode = true;
             showAlert(`Loaded: ${cfg.name}`, 'success');
@@ -459,25 +441,22 @@ function handleProjectDetailsInput(e) {
     const { id, value } = e.target;
 
     if (id === 'configName') State.projectDetails.configName = value;
-    if (id === 'organizationName') State.projectDetails.organizationName = value; // --- ADDED ---
     if (id === 'userName') State.projectDetails.userName = value;
     if (id === 'userEmail') State.projectDetails.userEmail = value;
+    // --- UPDATE: Save organizationName to state ---
+    if (id === 'organizationName') State.projectDetails.organizationName = value;
 
     const btn = byld('start-step2-btn');
     if (btn) {
-        // --- UPDATED: Added all 4 fields to this check ---
-        const isDisabled = !State.projectDetails.configName || 
-                           !State.projectDetails.organizationName || 
-                           !State.projectDetails.userName || 
-                           !State.projectDetails.userEmail;
-                           
-        btn.disabled = isDisabled;
-        if (isDisabled) {
-            btn.classList.add('bg-gray-500', 'cursor-not-allowed', 'opacity-50');
-            btn.classList.remove('btn-primary', 'hover:bg-green-700');
-        } else {
-            btn.classList.remove('bg-gray-500', 'cursor-not-allowed', 'opacity-50');
+        // --- UPDATE: Check all 4 fields ---
+        if (State.projectDetails.configName && State.projectDetails.userName && State.projectDetails.userEmail && State.projectDetails.organizationName) {
+            btn.disabled = false;
+            btn.classList.remove('bg-gray-500', 'cursor-not-allowed');
             btn.classList.add('btn-primary', 'hover:bg-green-700');
+        } else {
+            btn.disabled = true;
+            btn.classList.add('bg-gray-500', 'cursor-not-allowed');
+            btn.classList.remove('btn-primary', 'hover:bg-green-700');
         }
     }
 }
@@ -498,7 +477,11 @@ function handleInfrastructureInput(e) {
         State.infrastructureDetails[fieldName] = target.value;
     }
 
-    // --- REMOVED: Obsolete logic for "farDistance" ---
+    // PDF REQ #2: This logic is no longer needed as the fields are removed
+    // if (fieldName === 'farDistance' && target.value === 'no') {
+    //     State.infrastructureDetails.wirelessAtFar = false;
+    //     State.infrastructureDetails.wiredAtFar = false;
+    // }
 
     State.isFinalEditMode = false;
     renderApp();
@@ -510,36 +493,41 @@ function handleInfrastructureInput(e) {
  */
 function saveCurrentConfig() {
     const finalProductsToSave = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
-    
-    // --- UPDATED: Pass new Support Materials cost to save ---
-    const { grand, supportMaterials } = computeFromProducts(finalProductsToSave);
-    
-    // --- UPDATED: This is now just a warning, not a blocker ---
+    // --- UPDATE: Destructure grand total (which now includes support materials) ---
+    const { grand } = computeFromProducts(finalProductsToSave);
+    const validationResult = runValidationChecks(Object.entries(finalProductsToSave).map(([id, count]) => ({ ...getProduct(id), count })));
+
+    // --- UPDATE: Check all 4 required fields ---
     if (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName) {
-        showAlert('Project details are incomplete. Please fill them out in Step 2.', 'info');
+        showAlert('Please complete all fields in Step 2 before saving.', 'info');
         State.step = 2;
         renderApp();
-        // Try to focus the first empty field
-        if (!State.projectDetails.configName) byld('configName')?.focus();
-        else if (!State.projectDetails.organizationName) byld('organizationName')?.focus();
-        else if (!State.projectDetails.userName) byld('userName')?.focus();
-        else if (!State.projectDetails.userEmail) byld('userEmail')?.focus();
-        return false; // --- CHANGED: Still returns false to stop email, but it's just an info alert ---
-    }
+        
+        // Focus on the first empty field
+        const configNameInput = byld('configName');
+        const orgNameInput = byld('organizationName');
+        const userNameInput = byld('userName');
+        const emailInput = byld('userEmail');
 
-    const validationResult = runValidationChecks(Object.entries(finalProductsToSave).map(([id, count]) => ({ ...getProduct(id), count })));
+        if (configNameInput && !State.projectDetails.configName) configNameInput.focus();
+        else if (orgNameInput && !State.projectDetails.organizationName) orgNameInput.focus();
+        else if (userNameInput && !State.projectDetails.userName) userNameInput.focus();
+        else if (emailInput && !State.projectDetails.userEmail) emailInput.focus();
+        
+        return false;
+    }
 
     const newConfig = {
         id: Date.now(),
         name: State.projectDetails.configName,
         user: State.projectDetails.userName,
         email: State.projectDetails.userEmail, 
-        organizationName: State.projectDetails.organizationName, // --- ADDED ---
+        // --- UPDATE: Save organizationName ---
+        organization: State.projectDetails.organizationName,
         products: { ...finalProductsToSave },
         locations: [...State.locations],
         infrastructure: { ...State.infrastructureDetails },
         totalCost: grand,
-        supportCost: supportMaterials, // --- ADDED: Save support cost ---
         validationStatus: validationResult.status
     };
 
@@ -552,17 +540,7 @@ function saveCurrentConfig() {
     return true;
 }
 
-// --- 9. EMAIL FUNCTIONS ---
-
-/**
- * Helper to get a product's name and SKU safely for the email.
- */
-function getEmailProductLine(productId, count) {
-    const p = getProduct(productId);
-    const name = p ? escapeHtml(p.name) : 'Unknown Device';
-    const sku = p ? escapeHtml(p.sku || 'N/A') : 'N/A';
-    return `(x${count}) ${name} (${sku})`;
-}
+// --- 9. NEW EMAIL & PDF FUNCTIONS ---
 
 /**
  * Saves the config and sends a notification email via Formspree.
@@ -570,10 +548,9 @@ function getEmailProductLine(productId, count) {
 async function handleSaveAndNotify() {
     if (State.isSending) return;
 
-    // --- UPDATED: Validation is no longer a hard blocker ---
+    // This check now validates all 4 fields
     const didSave = saveCurrentConfig();
     if (!didSave) {
-        // saveCurrentConfig shows its own alert, so just stop.
         return; 
     }
 
@@ -583,72 +560,115 @@ async function handleSaveAndNotify() {
 
     try {
         const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
-        // --- UPDATED: Get all cost components ---
+        // --- UPDATE: Destructure new supportMaterials value ---
         const { list, equipmentCost, labor, programming, supportMaterials, grand } = computeFromProducts(finalProductsMap);
         const filteredList = list.filter(p => p.count > 0 && p.id !== 'HSETCUST').sort((a, b) => a.name.localeCompare(b.name));
-        const validation = runValidationChecks(list);
 
         const formData = new FormData();
         formData.append('Config_Name', State.projectDetails.configName);
+        // --- UPDATE: Add Organization Name to email ---
+        formData.append('Organization', State.projectDetails.organizationName);
         formData.append('Designer', State.projectDetails.userName);
-        formData.append('Organization', State.projectDetails.organizationName); // --- ADDED ---
         formData.append('Email', State.projectDetails.userEmail);
         if (State.projectDetails.userEmail) {
             formData.append('_replyto', State.projectDetails.userEmail);
         }
         formData.append('---', '---'); 
 
-        // --- NEW: Add Locations Breakdown ---
-        formData.append('--- LOCATIONS BREAKDOWN ---', '---');
-        if (State.locations.length > 0) {
+        // --- LOCATIONS SECTION ---
+        formData.append('--- Locations Breakdown ---', '---');
+        
+        const getProdDetails = (id) => {
+            try {
+                const product = getProduct(id);
+                if (product) {
+                    return { 
+                        name: escapeHtml(product.name || id), 
+                        sku: escapeHtml(product.sku || 'N/A') 
+                    };
+                }
+                return { name: `[Unknown ID: ${id}]`, sku: 'N/A' };
+            } catch (e) {
+                console.error(`Error in getProdDetails(${id}):`, e);
+                return { name: `[Error: ${id}]`, sku: 'N/A' };
+            }
+        };
+
+        if (State.locations.length === 0) {
+            formData.append('Locations', 'No locations were defined.');
+        } else {
             State.locations.forEach((loc, index) => {
-                const locHeader = `${index + 1}. ${escapeHtml(loc.name)}`;
-                let locDetails = [];
+                const parts = [];
                 
                 if (loc.keyPanelCount > 0) {
-                    const id = loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD';
-                    locDetails.push(getEmailProductLine(id, loc.keyPanelCount));
+                    const p = getProdDetails(loc.keyPanelMount === 'rackmount' ? 'MCX' : 'MCXD');
+                    parts.push(`${loc.keyPanelCount}x ${p.name} (${p.sku})`);
                 }
-                if (loc.wiredCount > 0) locDetails.push(getEmailProductLine('GBPX', loc.wiredCount));
+                if (loc.wiredCount > 0) {
+                    const p = getProdDetails('GBPX');
+                    parts.push(`${loc.wiredCount}x ${p.name} (${p.sku})`);
+                }
+                if (loc.wallStationCount > 0) {
+                    const p = getProdDetails('WSX');
+                    parts.push(`${loc.wallStationCount}x ${p.name} (${p.sku})`);
+                }
                 if (loc.wirelessCount > 0) {
-                    const id = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
-                    locDetails.push(getEmailProductLine(id, loc.wirelessCount));
+                    const wirelessId = loc.isHeavyDuty ? 'WBPXHD' : 'WBPX';
+                    const p = getProdDetails(wirelessId);
+                    parts.push(`${loc.wirelessCount}x ${p.name} (${p.sku})`);
                 }
-                if (loc.wallStationCount > 0) locDetails.push(getEmailProductLine('WSX', loc.wallStationCount));
-                if (loc.beaconCount > 0) locDetails.push(getEmailProductLine('BCON', loc.beaconCount));
+                if (loc.beaconCount > 0) {
+                    const p = getProdDetails('BCON');
+                    parts.push(`${loc.beaconCount}x ${p.name} (${p.sku})`);
+                }
                 
-                if (locDetails.length > 0) {
-                    formData.append(locHeader, locDetails.join(', '));
-                } else {
-                    formData.append(locHeader, 'No devices in this location.');
+                const headsetParts = [];
+                if (loc.headsetSplit?.stdOneEar > 0) {
+                    const p = getProdDetails('HSET1E');
+                    headsetParts.push(`${loc.headsetSplit.stdOneEar}x ${p.name} (${p.sku})`);
                 }
-            });
-        } else {
-            formData.append('Locations', 'No locations defined (Manual BOM).');
-        }
-        
-        // --- NEW: Add Validation Status ---
-        formData.append('--- VALIDATION ---', '---');
-        formData.append('Status', validation.status);
-        if(validation.validation_issues.length > 0) {
-            validation.validation_issues.forEach((issue, i) => {
-                formData.append(`Warning_${i+1}`, issue);
-            });
-        }
+                if (loc.headsetSplit?.stdDualEar > 0) {
+                    const p = getProdDetails('HSET2E');
+                    headsetParts.push(`${loc.headsetSplit.stdDualEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.comfortOneEar > 0) {
+                    const p = getProdDetails('HSETC1E');
+                    headsetParts.push(`${loc.headsetSplit.comfortOneEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.comfortDualEar > 0) {
+                    const p = getProdDetails('HSETC2E');
+                    headsetParts.push(`${loc.headsetSplit.comfortDualEar}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.handset > 0) {
+                    const p = getProdDetails('TELH');
+                    headsetParts.push(`${loc.headsetSplit.handset}x ${p.name} (${p.sku})`);
+                }
+                if (loc.headsetSplit?.customerSupplied > 0) {
+                    const p = getProdDetails('HSETCUST');
+                    headsetParts.push(`${loc.headsetSplit.customerSupplied}x ${p.name} (${p.sku})`);
+                }
+                
+                if (headsetParts.length > 0) {
+                    parts.push(`Headsets: [${headsetParts.join(', ')}]`);
+                }
 
-        // --- UPDATED: Add Bill of Materials ---
-        formData.append('--- BILL OF MATERIALS ---', '---');
+                const locationSummary = parts.length > 0 ? parts.join(' | ') : 'No devices in this location.';
+                formData.append(`Location_${(index + 1).toString().padStart(2, '0')}`, `${escapeHtml(loc.name)}: ${locationSummary}`);
+            });
+        }
+        formData.append('--- Bill of Materials ---', '---');
+        // --- END LOCATIONS SECTION ---
+
         let itemIndex = 1;
         filteredList.forEach(p => {
-            // --- UPDATED: Added SKU to line item ---
             const lineItem = `(x${p.count}) ${escapeHtml(p.name)} (${escapeHtml(p.sku || 'N/A')}) --- ${fmt(p.price * p.count)}`;
             formData.append(`Item_${itemIndex.toString().padStart(2, '0')}`, lineItem);
             itemIndex++;
         });
 
-        // --- UPDATED: Add new cost lines to Summary ---
-        formData.append('--- SUMMARY ---', '---'); 
+        formData.append('--- Summary ---', '---'); 
         formData.append('Equipment_Total', fmt(equipmentCost));
+        // --- UPDATE: Add new Support Materials line to email ---
         formData.append('Support_Materials_Logistics', fmt(supportMaterials));
         formData.append('Labor', fmt(labor));
         formData.append('Programming', fmt(programming));
@@ -676,4 +696,3 @@ async function handleSaveAndNotify() {
     State.isSending = false;
     renderApp(); 
 }
-
