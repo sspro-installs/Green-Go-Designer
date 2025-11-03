@@ -468,19 +468,18 @@ function renderStep5Review(productsToDisplay, totals) {
         `).join("")}
     </div>
 
-    <!-- *** EDITED SECTION *** -->
     <div class="flex-col items-center pt-4 border-t border-gray-700">
         <div class="flex justify-between w-full space-x-4">
             <button data-action="set-step" data-step="4" class="btn btn-secondary px-4 py-2">Back</button>
-            <button data-action="save-and-notify" class="btn btn-primary py-3 hover:bg-green-700 flex-grow" ${State.isSending ? 'disabled' : ""}>
-                ${State.isSending ? 'Saving & Sending...' : 'Save and Email Design'}
+            <button data-action="save-config" class="btn bg-indigo-600 hover:bg-indigo-700 text-white py-3">Save Configuration</button>
+            <button data-action="save-and-notify" class="btn btn-primary py-3 hover:bg-green-700" ${State.isSending ? 'disabled' : ""}>
+                ${State.isSending ? 'Sending...' : 'Email Design'}
             </button>
         </div>
         <p class="text-sm text-gray-400 mt-3 text-center">
-            This will email S&S your new design.
+            This will notify S&S that you have saved a new design.
         </p>
     </div>
-    <!-- *** END EDITED SECTION *** -->
 </div>`;
 }
 
