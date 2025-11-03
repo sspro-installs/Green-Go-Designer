@@ -9,37 +9,21 @@
  */
 function showAlert(message, type = 'info', onConfirm = null, onCancel = null) {
     State.systemAlert = { show: true, message, type, onConfirm, onCancel };
+    // Re-render the *alerts* specifically. renderApp() will handle the main UI.
+    // This is now handled by renderApp finding the #alert-container
     renderApp(); 
 
+    // EDIT: Auto-dismiss for toasts (success, info, error)
     if (type === 'success' || type === 'info' || type === 'error') {
         setTimeout(() => {
+            // Only hide if it's still the same alert
             if (State.systemAlert.show && State.systemAlert.message === message) {
                 State.systemAlert = { show: false };
+                // We just re-render the alerts, not the whole app
                 const alertContainer = document.getElementById('alert-container');
                 if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
             }
         }, 2500); // 2.5 seconds
-    }
-}
-
-/**
- * PDF REQ #3b: Adds a flag location if items are manually edited on Step 5.
- */
-function addManualLocationFlag() {
-    const manualLocName = "Manually added items";
-    let exists = State.locations.find(l => l.name === manualLocName);
-    if (!exists) {
-        State.locations.push({
-            name: manualLocName,
-            id: Date.now(),
-            keyPanelCount: 0,
-            wiredCount: 0,
-            wirelessCount: 0,
-            wallStationCount: 0,
-            beaconCount: 0,
-            headsetSplit: {},
-            isManual: true // Add a flag
-        });
     }
 }
 
@@ -55,9 +39,9 @@ function handleGlobalClick(e) {
 
     if (action === 'set-step') {
         const newStep = parseInt(target.dataset.step, 10);
-        // --- UPDATE: Add organizationName and userEmail to the check ---
-        if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName)) {
-            showAlert('Please complete all fields in Project Setup first.', 'info'); 
+        if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName)) {
+            // EDIT: Changed to 'info' for better toast styling
+            showAlert('Please complete Project Setup first.', 'info'); 
             return;
         }
         State.step = newStep;
@@ -106,6 +90,7 @@ function handleGlobalClick(e) {
 
     if (action === 'delete-location') {
         const locId = parseInt(target.dataset.id, 10);
+        // EDIT: Show new danger modal
         showAlert('Delete this location?', 'confirm-danger', () => {
             State.locations = State.locations.filter(l => l.id !== locId);
             State.isFinalEditMode = false;
@@ -114,6 +99,7 @@ function handleGlobalClick(e) {
     }
 
     if (action === 'reset-system') {
+        // EDIT: 'confirm' type will now render the new styled modal
         showAlert('Are you sure you want to reset all quantities?', 'confirm', () => {
             State.locations = [];
             State.configProducts = {};
@@ -138,13 +124,6 @@ function handleGlobalClick(e) {
         const id = target.dataset.id;
         State.configProducts[id] = (State.configProducts[id] || 0) + 1;
         if (!State.isFinalEditMode) State.isFinalEditMode = true;
-        
-        // --- PDF REQ #3b: Add manual location flag ---
-        if (State.step === 5) {
-            addManualLocationFlag();
-        }
-        // --- END REQ #3b ---
-
         renderApp();
     }
 
@@ -152,19 +131,13 @@ function handleGlobalClick(e) {
         const id = target.dataset.id;
         State.configProducts[id] = Math.max(0, (State.configProducts[id] || 0) - 1);
         if (!State.isFinalEditMode) State.isFinalEditMode = true;
-        
-        // --- PDF REQ #3b: Add manual location flag ---
-        if (State.step === 5) {
-            addManualLocationFlag();
-        }
-        // --- END REQ #3b ---
-        
         renderApp();
     }
 
     if (action === 'alert-confirm') {
         if (State.systemAlert.onConfirm) State.systemAlert.onConfirm();
         State.systemAlert = { show: false };
+        // Re-render alerts (which will be empty)
         const alertContainer = document.getElementById('alert-container');
         if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
     }
@@ -172,6 +145,7 @@ function handleGlobalClick(e) {
     if (action === 'alert-cancel') {
         if (State.systemAlert.onCancel) State.systemAlert.onCancel();
         State.systemAlert = { show: false };
+        // Re-render alerts (which will be empty)
         const alertContainer = document.getElementById('alert-container');
         if(alertContainer) alertContainer.innerHTML = renderSystemAlerts();
     }
@@ -191,8 +165,6 @@ function handleGlobalClick(e) {
             State.projectDetails.configName = cfg.name;
             State.projectDetails.userName = cfg.user;
             State.projectDetails.userEmail = cfg.email || ""; 
-            // --- UPDATE: Load organizationName ---
-            State.projectDetails.organizationName = cfg.organization || ""; // Load new field
             State.locations = JSON.parse(JSON.stringify(cfg.locations || []));
             const loadedProducts = cfg.products || {};
             State.configProducts = initialProducts.reduce((acc, p) => {
@@ -201,7 +173,7 @@ function handleGlobalClick(e) {
             }, {});
             State.infrastructureDetails = {
                 isMultiSite: cfg.infrastructure?.isMultiSite || 'no',
-                farDistance: cfg.infrastructure?.farDistance || 'no', // This is OK, it's just loading old data
+                farDistance: cfg.infrastructure?.farDistance || 'no',
                 wirelessAtFar: cfg.infrastructure?.wirelessAtFar || false,
                 wiredAtFar: cfg.infrastructure?.wiredAtFar || false,
                 needsWalkieTalkieInterface: cfg.infrastructure?.needsWalkieTalkieInterface || false,
@@ -217,6 +189,7 @@ function handleGlobalClick(e) {
     if (action === 'delete-saved') {
         const id = parseInt(target.dataset.id, 10);
         const name = target.dataset.name || 'this configuration';
+        // EDIT: Changed to 'confirm-danger'
         showAlert(`Delete '${name}'? This cannot be undone.`, 'confirm-danger', () => {
             State.savedConfigs = State.savedConfigs.filter(c => c.id !== id);
             saveConfigs();
@@ -225,6 +198,7 @@ function handleGlobalClick(e) {
         });
     }
 
+    // EDIT: Added handler for "Delete All"
     if (action === 'delete-all-saved') {
         showAlert('Delete ALL saved configurations? This cannot be undone.', 'confirm-danger', () => {
             State.savedConfigs = [];
@@ -443,13 +417,10 @@ function handleProjectDetailsInput(e) {
     if (id === 'configName') State.projectDetails.configName = value;
     if (id === 'userName') State.projectDetails.userName = value;
     if (id === 'userEmail') State.projectDetails.userEmail = value;
-    // --- UPDATE: Save organizationName to state ---
-    if (id === 'organizationName') State.projectDetails.organizationName = value;
 
     const btn = byld('start-step2-btn');
     if (btn) {
-        // --- UPDATE: Check all 4 fields ---
-        if (State.projectDetails.configName && State.projectDetails.userName && State.projectDetails.userEmail && State.projectDetails.organizationName) {
+        if (State.projectDetails.configName && State.projectDetails.userName) {
             btn.disabled = false;
             btn.classList.remove('bg-gray-500', 'cursor-not-allowed');
             btn.classList.add('btn-primary', 'hover:bg-green-700');
@@ -477,11 +448,10 @@ function handleInfrastructureInput(e) {
         State.infrastructureDetails[fieldName] = target.value;
     }
 
-    // PDF REQ #2: This logic is no longer needed as the fields are removed
-    // if (fieldName === 'farDistance' && target.value === 'no') {
-    //     State.infrastructureDetails.wirelessAtFar = false;
-    //     State.infrastructureDetails.wiredAtFar = false;
-    // }
+    if (fieldName === 'farDistance' && target.value === 'no') {
+        State.infrastructureDetails.wirelessAtFar = false;
+        State.infrastructureDetails.wiredAtFar = false;
+    }
 
     State.isFinalEditMode = false;
     renderApp();
@@ -493,27 +463,18 @@ function handleInfrastructureInput(e) {
  */
 function saveCurrentConfig() {
     const finalProductsToSave = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
-    // --- UPDATE: Destructure grand total (which now includes support materials) ---
     const { grand } = computeFromProducts(finalProductsToSave);
     const validationResult = runValidationChecks(Object.entries(finalProductsToSave).map(([id, count]) => ({ ...getProduct(id), count })));
 
-    // --- UPDATE: Check all 4 required fields ---
-    if (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName) {
-        showAlert('Please complete all fields in Step 2 before saving.', 'info');
+    if (!State.projectDetails.configName || !State.projectDetails.userName) {
+        // EDIT: Changed to 'info' for better toast styling
+        showAlert('Please enter a Configuration Name and Your Name in Step 2 before saving.', 'info');
         State.step = 2;
         renderApp();
-        
-        // Focus on the first empty field
         const configNameInput = byld('configName');
-        const orgNameInput = byld('organizationName');
         const userNameInput = byld('userName');
-        const emailInput = byld('userEmail');
-
         if (configNameInput && !State.projectDetails.configName) configNameInput.focus();
-        else if (orgNameInput && !State.projectDetails.organizationName) orgNameInput.focus();
         else if (userNameInput && !State.projectDetails.userName) userNameInput.focus();
-        else if (emailInput && !State.projectDetails.userEmail) emailInput.focus();
-        
         return false;
     }
 
@@ -522,8 +483,6 @@ function saveCurrentConfig() {
         name: State.projectDetails.configName,
         user: State.projectDetails.userName,
         email: State.projectDetails.userEmail, 
-        // --- UPDATE: Save organizationName ---
-        organization: State.projectDetails.organizationName,
         products: { ...finalProductsToSave },
         locations: [...State.locations],
         infrastructure: { ...State.infrastructureDetails },
@@ -548,7 +507,6 @@ function saveCurrentConfig() {
 async function handleSaveAndNotify() {
     if (State.isSending) return;
 
-    // This check now validates all 4 fields
     const didSave = saveCurrentConfig();
     if (!didSave) {
         return; 
@@ -560,14 +518,11 @@ async function handleSaveAndNotify() {
 
     try {
         const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
-        // --- UPDATE: Destructure new supportMaterials value ---
-        const { list, equipmentCost, labor, programming, supportMaterials, grand } = computeFromProducts(finalProductsMap);
+        const { list, equipmentCost, labor, programming, grand } = computeFromProducts(finalProductsMap);
         const filteredList = list.filter(p => p.count > 0 && p.id !== 'HSETCUST').sort((a, b) => a.name.localeCompare(b.name));
 
         const formData = new FormData();
         formData.append('Config_Name', State.projectDetails.configName);
-        // --- UPDATE: Add Organization Name to email ---
-        formData.append('Organization', State.projectDetails.organizationName);
         formData.append('Designer', State.projectDetails.userName);
         formData.append('Email', State.projectDetails.userEmail);
         if (State.projectDetails.userEmail) {
@@ -575,13 +530,15 @@ async function handleSaveAndNotify() {
         }
         formData.append('---', '---'); 
 
-        // --- LOCATIONS SECTION ---
+        // --- NEW LOCATIONS SECTION ---
         formData.append('--- Locations Breakdown ---', '---');
         
+        // Helper function to safely get product name and SKU
         const getProdDetails = (id) => {
             try {
                 const product = getProduct(id);
                 if (product) {
+                    // Use escapeHtml and fallback for both name and SKU
                     return { 
                         name: escapeHtml(product.name || id), 
                         sku: escapeHtml(product.sku || 'N/A') 
@@ -622,6 +579,7 @@ async function handleSaveAndNotify() {
                     parts.push(`${loc.beaconCount}x ${p.name} (${p.sku})`);
                 }
                 
+                // Headsets
                 const headsetParts = [];
                 if (loc.headsetSplit?.stdOneEar > 0) {
                     const p = getProdDetails('HSET1E');
@@ -644,7 +602,7 @@ async function handleSaveAndNotify() {
                     headsetParts.push(`${loc.headsetSplit.handset}x ${p.name} (${p.sku})`);
                 }
                 if (loc.headsetSplit?.customerSupplied > 0) {
-                    const p = getProdDetails('HSETCUST');
+                    const p = getProdDetails('HSETCUST'); // Use helper to get CUST-HSET sku
                     headsetParts.push(`${loc.headsetSplit.customerSupplied}x ${p.name} (${p.sku})`);
                 }
                 
@@ -652,15 +610,17 @@ async function handleSaveAndNotify() {
                     parts.push(`Headsets: [${headsetParts.join(', ')}]`);
                 }
 
+                // Use escapeHtml on the location name itself
                 const locationSummary = parts.length > 0 ? parts.join(' | ') : 'No devices in this location.';
                 formData.append(`Location_${(index + 1).toString().padStart(2, '0')}`, `${escapeHtml(loc.name)}: ${locationSummary}`);
             });
         }
         formData.append('--- Bill of Materials ---', '---');
-        // --- END LOCATIONS SECTION ---
+        // --- END NEW SECTION ---
 
         let itemIndex = 1;
         filteredList.forEach(p => {
+            // Add SKU to the line item here
             const lineItem = `(x${p.count}) ${escapeHtml(p.name)} (${escapeHtml(p.sku || 'N/A')}) --- ${fmt(p.price * p.count)}`;
             formData.append(`Item_${itemIndex.toString().padStart(2, '0')}`, lineItem);
             itemIndex++;
@@ -668,8 +628,6 @@ async function handleSaveAndNotify() {
 
         formData.append('--- Summary ---', '---'); 
         formData.append('Equipment_Total', fmt(equipmentCost));
-        // --- UPDATE: Add new Support Materials line to email ---
-        formData.append('Support_Materials_Logistics', fmt(supportMaterials));
         formData.append('Labor', fmt(labor));
         formData.append('Programming', fmt(programming));
         formData.append('GRAND_TOTAL', fmt(grand));
