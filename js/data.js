@@ -146,4 +146,3 @@ const imageMap = {
     'CHURCH_EXAMPLES': 'https://sspro-installs.github.io/media-assets/AI created pictures/Audi-lighting-booth.png',
     'CHURCH_GREAT_FOR': 'https://sspro-installs.github.io/media-assets/AI created pictures/Production team in headsets.png'
 };
-
