@@ -207,7 +207,7 @@ function renderStep1Overview() {
 
     <!-- Main Parts of the System -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class="w-full" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x384/1f2937/4ade80?text=Main+Parts'">
+        <img class_=("w-full" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x384/1f2937/4ade80?text=Main+Parts'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">Main Parts of the System</h2>
             <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
@@ -263,7 +263,7 @@ function renderStep1Overview() {
 
 
 function renderStep2() {
-    const disabled = (!State.projectDetails.configName || !State.projectDetails.userName) ? 'disabled' : "";
+    const disabled = (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName) ? 'disabled' : "";
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">2. Project Naming & Setup</h2>
@@ -277,11 +277,14 @@ function renderStep2() {
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="configName" type="text" value="${escapeHtml(State.projectDetails.configName || "")}" placeholder="e.g., Main Stage Intercom" />
         </div>
         <div>
+            <label class="block text-sm font-medium text-gray-300" for="organizationName">Organization Name</label>
+            <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="organizationName" type="text" value="${escapeHtml(State.projectDetails.organizationName || "")}" placeholder="e.g., City Church" />
+        </div>
+        <div>
             <label class="block text-sm font-medium text-gray-300" for="userName">Your Name (Designer)</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userName" type="text" value="${escapeHtml(State.projectDetails.userName || "")}" placeholder="e.g., John Smith" />
         </div>
         <div>
-            <!-- EDIT: Removed "(Optional, for Reply-To)" -->
             <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
         </div>
