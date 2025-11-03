@@ -8,7 +8,12 @@ const State = {
     isLocationModalOpen: false,
     editingLocationId: null,
     systemAlert: { show: false, type: 'info', message: "", onConfirm: null, onCancel: null },
-    projectDetails: { userName: "", configName: "", userEmail: "" },
+    projectDetails: { 
+        userName: "", 
+        configName: "", 
+        userEmail: "",
+        organizationName: "" // --- ADDED THIS LINE ---
+    },
     infrastructureDetails: {
         isMultiSite: 'no',
         farDistance: 'no',
@@ -28,3 +33,4 @@ let initialProducts = [];
 let lastLocationsHash = "";
 let cachedConfig = {};
 const productCache = new Map();
+
