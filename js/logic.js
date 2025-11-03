@@ -1,5 +1,9 @@
 // --- 6. CORE LOGIC (CALCULATIONS, VALIDATION, STORAGE) ---
 
+// --- REMOVED CONSTANTS ---
+// All rates (LABOR_RATE, PROGRAMMING_SETUP_RATE, SUPPORT_MATERIALS_RATE)
+// are now loaded from pricing.json into global `let` variables from data.js.
+
 /**
  * Populates productMap and initialProducts from the productGroups data.
  * This function is called after prices are fetched and updated.
@@ -156,14 +160,15 @@ function computeFromProducts(finalProductsMap) {
     const equipmentCost = list.reduce((s, i) => s + (i.price || 0) * (i.count || 0), 0);
     const devicesCount = list.reduce((s, i) => i.isCoreDevice ? s + (i.count || 0) : s, 0);
     const headsetsCount = list.reduce((s, i) => i.isHeadset ? s + (i.count || 0) : s, 0);
-    const labor = equipmentCost * LABOR_RATE;
-    const programming = equipmentCost * PROGRAMMING_SETUP_RATE;
     
     // --- EDITS START HERE ---
-    const supportMaterials = equipmentCost * 0.10; // 10% of equipment cost
-    const grand = equipmentCost + labor + programming + supportMaterials; // Added supportMaterials
+    // These now all use the global variables set by main.js
+    const labor = equipmentCost * LABOR_RATE;
+    const programming = equipmentCost * PROGRAMMING_SETUP_RATE;
+    const supportMaterials = equipmentCost * SUPPORT_MATERIALS_RATE;
+    const grand = equipmentCost + labor + programming + supportMaterials;
 
-    return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand, supportMaterials }; // Added supportMaterials
+    return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand, supportMaterials };
     // --- EDITS END HERE ---
 }
 
@@ -228,3 +233,4 @@ function saveConfigs() {
         }
     }
 }
+
