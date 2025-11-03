@@ -42,7 +42,13 @@ function renderProgress() {
         { title: 'Infrastructure' },
         { title: 'Review & Export' },
     ];
-    const isSetupIncomplete = !State.projectDetails.configName || !State.projectDetails.userName;
+    // --- UPDATED: Check all 4 fields for progress bar navigation ---
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(State.projectDetails.userEmail || "");
+    const isSetupIncomplete = !State.projectDetails.configName || 
+                              !State.projectDetails.userName || 
+                              !State.projectDetails.organizationName || 
+                              !emailValid;
+
     return `
 <div class="no-print flex justify-between mb-8">
     ${steps.map((s, idx) => `
@@ -258,13 +264,27 @@ function renderStep1Overview() {
 
 
 function renderStep2() {
-    const disabled = (!State.projectDetails.configName || !State.projectDetails.userName) ? 'disabled' : "";
+    // --- UPDATED: Validate all 4 fields on render ---
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(State.projectDetails.userEmail || "");
+    const allFieldsFilled = State.projectDetails.configName &&
+                            State.projectDetails.organizationName &&
+                            State.projectDetails.userName &&
+                            emailValid;
+    const disabled = !allFieldsFilled ? 'disabled' : "";
+    
+    const startBtnClasses = disabled ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700';
+    const skipBtnClasses = disabled ? 'bg-gray-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700';
+    // --- END OF UPDATE ---
+
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">2. Project Naming & Setup</h2>
     <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-green-500">
         <p class="text-sm text-gray-300">Define your project. This information is used to save and export configurations.</p>
-        <button data-action="skip-to-manual-check" class="mt-3 px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Skip to Manual BOM Entry &rarr;</button>
+        
+        <button id="skip-to-manual-check-btn" data-action="skip-to-manual-check" ${disabled} class="mt-3 px-4 py-2 text-sm text-white rounded-md font-semibold ${skipBtnClasses}">
+            Skip to Manual BOM Entry &rarr;
+        </button>
     </div>
     <div class="space-y-4">
         <div>
@@ -281,10 +301,13 @@ function renderStep2() {
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-300" for="userEmail">Your Email</label>
-            <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
+            <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com (must be valid)" />
         </div>
     </div>
-    <button id="start-step2-btn" data-action="start-step2-check" ${disabled} class="w-full btn py-2 ${disabled ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700'}">Start Adding Locations</button>
+    
+    <button id="start-step2-btn" data-action="start-step2-check" ${disabled} class="w-full btn py-2 ${startBtnClasses}">
+        Start Adding Locations
+    </button>
 </div>`;
 }
 
