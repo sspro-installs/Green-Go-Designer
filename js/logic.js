@@ -220,17 +220,9 @@ function saveConfigs() {
         }));
         localStorage.setItem('greenGoConfigs', JSON.stringify(compressed));
     } catch (e) {
-        if (e.name === 'QuotaExceededError') {
-            if (State.savedConfigs.length > 0) {
-                State.savedConfigs.pop();
-                saveConfigs(); // Retry saving
-                showAlert('Storage limit reached. Removed oldest configuration.', 'warning');
-            } else {
-                showAlert('Storage limit reached and no configurations to remove.', 'error');
-            }
-        } else {
-            showAlert('Error saving configurations.', 'error');
-        }
+        // MODIFIED: Removed showAlert calls. Re-throw the error to be handled by events.js
+        console.error("Error in saveConfigs:", e); // Log it
+        throw e; // Re-throw the original error
     }
 }
 
