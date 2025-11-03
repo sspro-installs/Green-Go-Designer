@@ -44,13 +44,15 @@ function renderProgress() {
         { title: 'Infrastructure' },
         { title: 'Review & Export' },
     ];
-    const isSetupIncomplete = !State.projectDetails.configName || !State.projectDetails.userName;
+    // --- UPDATE: Add organizationName to the check ---
+    const isSetupIncomplete = !State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName;
     return `
 <div class="no-print flex justify-between mb-8">
     ${steps.map((s, idx) => `
     <div data-action="set-step" data-step="${idx + 1}"
         class="flex-1 text-center py-2 rounded-full mx-1 transition duration-300 ${
             // EDIT 2 (Last time): Modified logic to only block *future* steps (Request #2)
+            // --- UPDATE: This now checks all 4 fields ---
             idx + 1 > 2 && isSetupIncomplete ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         } ${
             idx + 1 === State.step ? 'bg-green-600 text-white shadow-lg' : (idx + 1 < State.step ? 'bg-green-800 text-green-100' : 'bg-gray-700 text-gray-400')
@@ -61,14 +63,17 @@ function renderProgress() {
 </div>`;
 }
 
-function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand) {
-    // EDIT 3 (Last time): Simplified cost section text (Request #11) and added margin-top (Request #12 & #14)
+// --- UPDATE: Added supportMaterials to function signature ---
+function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, supportMaterials, grand) {
     const costSection = equipmentCost > 0 ?
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(equipmentCost)}</span>
         </div>
-        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 mt-4 text-gray-200">Labor & Services</h3>
+        <!-- REQ: Change title from "Labor & Services" -->
+        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 mt-4 text-gray-200">Services and Support Material</h3>
         <div class="space-y-2 mb-4">
+            <!-- REQ: Add new "Support Materials" line -->
+            <div class="flex-between"><span class="text-sm text-gray-400">Support Materials & Logistics:</span><span class="font-medium text-green-500">${fmt(supportMaterials)}</span></div>
             <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost:</span><span class="font-medium text-green-500">${fmt(labor)}</span></div>
             <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(programming)}</span></div>
         </div>
@@ -77,13 +82,14 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
             <span class="text-red-400">${fmt(grand)}</span>
         </div>`
         :
-        // EDIT 4 (Last time): Added $0 values for when cost is 0 (Request #10)
-        // EDIT 5 (Last time): Simplified text (Request #11) and added margin-top (Request #12 & #14)
         `<div class="flex-between font-extrabold text-lg pt-2 border-t-2 border-gray-600">
             <span>Total Equipment Cost:</span><span class="text-green-400">${fmt(0)}</span>
         </div>
-        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 mt-4 text-gray-200">Labor & Services</h3>
+        <!-- REQ: Change title from "Labor & Services" -->
+        <h3 class="font-bold text-base border-b border-gray-600 pb-1 mb-2 mt-4 text-gray-200">Services and Support Material</h3>
         <div class="space-y-2 mb-4">
+            <!-- REQ: Add new "Support Materials" line (even at $0) -->
+            <div class="flex-between"><span class="text-sm text-gray-400">Support Materials & Logistics:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
             <div class="flex-between"><span class="text-sm text-gray-400">Labor Cost:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
             <div class="flex-between"><span class="text-sm text-gray-400">Programming:</span><span class="font-medium text-green-500">${fmt(0)}</span></div>
         </div>
@@ -96,7 +102,6 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 <div class="space-y-8 no-print">
     <div class="bg-gray-800 p-6 shadow-xl rounded-lg border border-gray-700">
         <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
-            <!-- EDIT 6 (Last time): Wrapped icon in span to constrain size (Request #3) -->
             <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
             Project Summary
         </h2>
@@ -106,13 +111,12 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
             <div class="flex-between"><span>Total Headsets:</span><span>${headsetsCount || 0}</span></div>
         </div>
         ${costSection}
-        <!-- REQ #5: Add ballpark estimate note -->
+        <!-- REQ: Update ballpark estimate text -->
         <p class="text-xs text-gray-400 mt-4 text-center">
-            This is a ballpark estimate. A final quote will be given separately.
+            This is a ballpark estimate. After review, A final quote will be given separately.
         </p>
     </div>
     
-    <!-- EDIT 7 (Last time): Added "Reset System" button card (Request #5) -->
     <div class="card p-4">
         <button data-action="reset-system" class="w-full btn bg-red-600 hover:bg-red-700 text-white py-2">Reset Current System</button>
         <p class="text-xs text-gray-400 mt-2 text-center">This resets all quantities to zero, but keeps your project name and email.</p>
@@ -123,7 +127,6 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
 }
 
 function renderApp() {
-    // EDIT: Removed logic that blocked returning to Step 1
     // if (State.isFinalEditMode && State.step === 1) State.step = 5;
 
     if (State.isCalculating) {
@@ -145,7 +148,8 @@ function renderApp() {
             return acc;
         }, {}) : finalProductsMap;
 
-    const { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand } = computeFromProducts(mapForDisplay);
+    // --- UPDATE: Destructure new supportMaterials value ---
+    const { list, equipmentCost, devicesCount, headsetsCount, labor, programming, supportMaterials, grand } = computeFromProducts(mapForDisplay);
     const displayList = list.filter(p => p.id !== 'HSETCUST');
 
     let stepContent;
@@ -153,10 +157,10 @@ function renderApp() {
     else if (State.step === 2) stepContent = renderStep2();
     else if (State.step === 3) stepContent = renderStep3LocationManager(calculatedConfig);
     else if (State.step === 4) stepContent = renderStep4Infrastructure();
-    else stepContent = renderStep5Review(displayList, { equipmentCost, devicesCount, headsetsCount, labor, programming, grand });
+    // --- UPDATE: Pass supportMaterials to renderStep5Review ---
+    else stepContent = renderStep5Review(displayList, { equipmentCost, devicesCount, headsetsCount, labor, programming, supportMaterials, grand });
 
     const html = `
-    <!-- EDIT: Added alert-container for toasts -->
     <div id="alert-container" class="fixed top-0 left-0 right-0 z-modal" style="pointer-events: none;">
         ${renderSystemAlerts()}
     </div>
@@ -169,9 +173,11 @@ function renderApp() {
                 ${stepContent}
             </div>
         </div>
-        ${renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, grand)}
+        <!-- UPDATE: Pass supportMaterials to renderSidebar -->
+        ${renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, programming, supportMaterials, grand)}
     </div>
-    ${renderPrintSection(displayList, { equipmentCost, labor, programming, grand })}
+    <!-- UPDATE: Pass supportMaterials to renderPrintSection -->
+    ${renderPrintSection(displayList, { equipmentCost, labor, programming, supportMaterials, grand })}
     `;
     document.getElementById('app').innerHTML = html;
 }
@@ -207,7 +213,7 @@ function renderStep1Overview() {
 
     <!-- Main Parts of the System -->
     <div class="bg-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-        <img class_=("w-full" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x384/1f2937/4ade80?text=Main+Parts'">
+        <img class="w-full" src="${imageMap.CHURCH_PARTS}" alt="Green-GO gear on a table" onerror="this.src='https://placehold.co/600x384/1f2937/4ade80?text=Main+Parts'">
         <div class="p-6">
             <h2 class="text-xl font-semibold text-green-400 mb-2">Main Parts of the System</h2>
             <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
@@ -263,6 +269,7 @@ function renderStep1Overview() {
 
 
 function renderStep2() {
+    // --- UPDATE: Add organizationName and userEmail to the disabled check ---
     const disabled = (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.userEmail || !State.projectDetails.organizationName) ? 'disabled' : "";
     return `
 <div class="space-y-6">
@@ -276,6 +283,7 @@ function renderStep2() {
             <label class="block text-sm font-medium text-gray-300" for="configName">Configuration Name</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="configName" type="text" value="${escapeHtml(State.projectDetails.configName || "")}" placeholder="e.g., Main Stage Intercom" />
         </div>
+        <!-- --- NEW FIELD: Organization Name --- -->
         <div>
             <label class="block text-sm font-medium text-gray-300" for="organizationName">Organization Name</label>
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="organizationName" type="text" value="${escapeHtml(State.projectDetails.organizationName || "")}" placeholder="e.g., City Church" />
@@ -289,6 +297,7 @@ function renderStep2() {
             <input class="mt-1 block w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300" id="userEmail" type="email" value="${escapeHtml(State.projectDetails.userEmail || "")}" placeholder="e.g., john.smith@example.com" />
         </div>
     </div>
+    <!-- --- UPDATE: Button check now includes all 4 fields --- -->
     <button id="start-step2-btn" data-action="start-step2-check" ${disabled} class="w-full btn py-2 ${disabled ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary hover:bg-green-700'}">Start Adding Locations</button>
 </div>`;
 }
@@ -297,7 +306,6 @@ function renderStep3LocationManager(aggregatedBOM) {
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">3. Define Green-GO Locations</h2>
-    <!-- EDIT: Added description paragraph -->
     <p class="text-sm text-gray-300 -mt-4">
         A Location represents a physical area where communication devices are needed - such as Stage, FOH, or Backstage. Defining locations helps organize your system and plan communication paths clearly.
     </p>
@@ -323,10 +331,9 @@ function renderStep3LocationManager(aggregatedBOM) {
                     <p class="text-xs text-gray-400">${summary}</p>
                 </div>
                 <div class="flex space-x-2">
-                    <!-- REQ #1: Making icons transparent. This is best done with CSS, but adding 'opacity-75' is a fallback. -->
-                    <!-- I will ask for css/styles.css to do this properly. -->
-                    <button data-action="edit-location" data-id="${loc.id}" class="text-indigo-400 hover:text-indigo-300 p-1">${Icons.Edit()}</button>
-                    <button data-action="delete-location" data-id="${loc.id}" class="text-red-400 hover:text-red-300 p-1">${Icons.Trash2()}</button>
+                    <!-- PDF REQ #1: Add opacity for "transparent" look -->
+                    <button data-action="edit-location" data-id="${loc.id}" class="text-indigo-400 hover:text-indigo-300 p-1 opacity-75 hover:opacity-100">${Icons.Edit()}</button>
+                    <button data-action="delete-location" data-id="${loc.id}" class="text-red-400 hover:text-red-300 p-1 opacity-75 hover:opacity-100">${Icons.Trash2()}</button>
                 </div>
             </div>
             `;
@@ -339,7 +346,7 @@ function renderStep3LocationManager(aggregatedBOM) {
 
 function renderStep4Infrastructure() {
     const inf = State.infrastructureDetails;
-    // REQ #2: Removed isFarDistance variable
+    // PDF REQ #2: Removed isFarDistance variable
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">4. Infrastructure & Connectivity</h2>
@@ -368,7 +375,7 @@ function renderStep4Infrastructure() {
         ${inf.isMultiSite === 'yes' ? '<p class="text-xs text-red-400 mt-2">Adds Bridge Interface to BOM</p>' : ""}
     </div>
 
-    <!-- REQ #2: Removed "Furthest point" question block -->
+    <!-- PDF REQ #2: Removed "Furthest point" question block -->
 
     <div class="flex-between pt-4 border-t border-gray-700">
         <button data-action="set-step" data-step="3" class="btn btn-secondary px-4 py-2">Back</button>
@@ -384,7 +391,7 @@ function renderStep5Review(productsToDisplay, totals) {
         count: productsToDisplay.find(item => item.id === p.id)?.count || 0
     })).filter(p => p.id !== 'HSETCUST');
 
-    // REQ #3a: Sort list to show items with count > 0 first, then alphabetically
+    // PDF REQ #3a: Sort list to show items with count > 0 first, then alphabetically
     const sortedProducts = fullListWithCounts.sort((a, b) => {
         if (a.count > 0 && b.count === 0) return -1;
         if (a.count === 0 && b.count > 0) return 1;
@@ -403,7 +410,6 @@ function renderStep5Review(productsToDisplay, totals) {
         const url = imageMap[id];
         if (!url) return "";
         const altText = getProduct(id)?.name || 'Product';
-        // EDIT: Removed 'bg-white' class
         return `<img loading="lazy" src="${url}" alt="${altText}" class="img-bom-thumb hidden sm:block p-1" onerror="this.style.display='none'" />`;
     };
 
@@ -417,7 +423,6 @@ function renderStep5Review(productsToDisplay, totals) {
 
     <div class="p-4 shadow rounded-lg ${validation.status === 'PASS' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-500'} border-l-4">
         <h3 class="lg:text-lg font-bold flex items-center ${validation.status === 'PASS' ? 'text-green-400' : 'text-red-400'}">
-            <!-- EDIT: Wrapped icon in span and set size -->
             <span class="w-16 h-16 mr-2">
                 ${validation.status === 'PASS' ? Icons.CheckCircle('w-16 h-16') : Icons.AlertCircle('w-16 h-16')}
             </span>
@@ -430,7 +435,6 @@ function renderStep5Review(productsToDisplay, totals) {
         ${groups.map(group => `
         <div class="space-y-3">
             <h3 class="text-lg font-bold text-gray-100 border-b border-gray-600 pb-1 flex items-center">
-                <!-- EDIT: Wrapped icon in span and set size -->
                 <span class="w-16 h-16 mr-2">
                     ${Icons[group.icon] ? Icons[group.icon]('w-16 h-16 text-green-400') : ""}
                 </span>
@@ -446,7 +450,6 @@ function renderStep5Review(productsToDisplay, totals) {
                         <div class="text-sm font-bold text-indigo-400 mt-1">${fmt(item.price || 0)}</div>
                     </div>
                 </div>
-                <!-- EDIT: Replaced button layout with bom-control classes -->
                 <div class="bom-control ml-4">
                     <button data-action="dec-item" data-id="${item.id}" class="bom-control-btn bom-minus">-</button>
                     <span class="bom-count ${item.count === 0 ? 'text-gray-500' : 'text-gray-100'}">${item.count || 0}</span>
@@ -476,15 +479,12 @@ function renderStep5Review(productsToDisplay, totals) {
 function renderSavedConfigs() {
     return `
 <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
-    <!-- EDIT: Added flex-between and Delete All button -->
     <div class="flex-between items-center mb-4">
-        <!-- REQ #6: Change title -->
+        <!-- PDF REQ #6: Change title -->
         <h2 class="text-2xl font-bold text-white flex items-center">
-            <!-- EDIT: Wrapped icon in span to constrain size -->
             <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
             Saved Configurations
         </h2>
-        <!-- EDIT: Added Delete All button -->
         ${State.savedConfigs.length > 0 ? `
         <button data-action="delete-all-saved" class="btn btn-secondary bg-red-800 hover:bg-red-700 text-red-100 px-3 py-1 text-sm">
             ${Icons.Trash2('w-4 h-4 mr-1')}
@@ -499,7 +499,6 @@ function renderSavedConfigs() {
                 <p class="font-semibold text-gray-100">${escapeHtml(cfg.name)}</p>
                 <p class="text-xs text-gray-400">${escapeHtml(cfg.user)} | ${new Date(cfg.id).toLocaleDateString()} | ${fmt(cfg.totalCost || 0)}</p>
             </div>
-            <!-- EDIT: Restyled Load/Delete buttons -->
             <div class="flex space-x-2">
                 <button data-action="load-config" data-id="${cfg.id}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Load</button>
                 <button data-action="delete-saved" data-id="${cfg.id}" data-name="${escapeHtml(cfg.name)}" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold">Delete</button>
@@ -604,9 +603,6 @@ function renderLocationModal() {
         return 0;
     };
 
-    // EDIT: Increased image sizes
-    // w-10 h-10 -> w-12 h-12
-    // w-8 h-8 -> w-10 h-10
     return `
 <div class="modal-backdrop z-modal" style="pointer-events: auto;">
     <div class="modal-content">
@@ -711,14 +707,22 @@ function renderLocationModal() {
 }
 
 function renderPrintSection(productsToDisplay, totals) {
-    const { equipmentCost, labor, programming, grand } = totals;
+    // --- UPDATE: Destructure new supportMaterials value ---
+    const { equipmentCost, labor, programming, supportMaterials, grand } = totals;
     const validation = runValidationChecks(productsToDisplay);
     const today = new Date().toLocaleDateString();
 
     const filteredList = productsToDisplay.filter(p => p.count > 0);
     const groups = productGroups.map(g => {
         if (g.name === 'Customer Supplied') return null;
-        const groupProducts = filteredList.filter(p => p.group === g.name).sort((a, b) => a.name.localeCompare(b.name));
+        // --- UPDATE: Sort by count > 0 first, then by name ---
+        const groupProducts = filteredList
+            .filter(p => p.group === g.name)
+            .sort((a, b) => {
+                if (a.count > 0 && b.count === 0) return -1;
+                if (a.count === 0 && b.count > 0) return 1;
+                return a.name.localeCompare(b.name);
+            });
         if (groupProducts.length === 0) return null;
         return { name: g.name, products: groupProducts };
     }).filter(Boolean);
@@ -728,10 +732,11 @@ function renderPrintSection(productsToDisplay, totals) {
     <div class="flex-between border-b pb-2 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-green-800">Green-GO System Quote</h1>
-            <!-- EDIT: Removed CRC Logo line from here -->
             <div class="mt-4 text-sm">
                 <p><strong>Project:</strong> ${escapeHtml(State.projectDetails.configName || 'N/A')}</p>
                 <p><strong>Designer:</strong> ${escapeHtml(State.projectDetails.userName || 'N/A')}</p>
+                <!-- --- UPDATE: Add Organization Name --- -->
+                <p><strong>Organization:</strong> ${escapeHtml(State.projectDetails.organizationName || 'N/A')}</p>
                 <p><strong>Date:</strong> ${today}</p>
             </div>
         </div>
@@ -768,12 +773,17 @@ function renderPrintSection(productsToDisplay, totals) {
     </table>
 
     <div class="max-w-sm ml-auto mt-8 space-y-3">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Quote Summary</h2>
+        <!-- REQ: Change title -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Services and Support Material</h2>
         <div class="flex-between font-semibold text-lg border-b pb-2">
             <span>Equipment Total:</span>
             <span class="text-green-600">${fmt(equipmentCost)}</span>
         </div>
-        <!-- EDIT: Removed percentages -->
+        <!-- REQ: Add new "Support Materials" line -->
+        <div class="flex-between">
+            <span>Support Materials & Logistics:</span>
+            <span class="font-medium">${fmt(supportMaterials)}</span>
+        </div>
         <div class="flex-between">
             <span>Labor:</span>
             <span class="font-medium">${fmt(labor)}</span>
