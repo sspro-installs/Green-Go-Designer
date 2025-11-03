@@ -9,6 +9,7 @@ const PRICING_URL = "https://raw.githubusercontent.com/sspro-installs/Green-Go-D
 // Default rates (will be overwritten by pricing.json)
 let LABOR_RATE = 0.20;
 let PROGRAMMING_SETUP_RATE = 0.05;
+let SUPPORT_MATERIALS_RATE = 0.05; // <-- ADDED DEFAULT
 
 // System Ratios
 const WAA_RATIO = 4;
@@ -112,11 +113,11 @@ const imageMap = {
     'MCXEXT': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-MCXEXT.png',
     'MCXDEXT': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-MCXDEXT.png',
     'DNTI': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_dante-interface-x.png',
-    'Q4WI': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_Q4W.png',
+    'Q4WI': 'httpss://sspro-installs.github.io/media-assets/vendors/greengo/GGO_Q4W.png',
     'BRIDC': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_BRIDGEX.png',
     'RDX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-TD2WR.png',
     'INTERFACEX': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO_INTERFACEX.png',
-    'SI2W': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SI2W.png',
+    'SI2W': 'https::/sspro-installs.github.io/media-assets/vendors/greengo/GGO-SI2W.png',
     'SI4W': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-TD4WR.png',
     'SW8': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SW81.png',
     'SW5': 'https://sspro-installs.github.io/media-assets/vendors/greengo/GGO-SW5.png',
