@@ -165,6 +165,7 @@ function handleGlobalClick(e) {
             State.projectDetails.configName = cfg.name;
             State.projectDetails.userName = cfg.user;
             State.projectDetails.userEmail = cfg.email || ""; 
+            State.projectDetails.organizationName = cfg.organization || ""; // <-- ADDED
             State.locations = JSON.parse(JSON.stringify(cfg.locations || []));
             const loadedProducts = cfg.products || {};
             State.configProducts = initialProducts.reduce((acc, p) => {
@@ -415,6 +416,7 @@ function handleProjectDetailsInput(e) {
     const { id, value } = e.target;
 
     if (id === 'configName') State.projectDetails.configName = value;
+    if (id === 'orgName') State.projectDetails.organizationName = value; // <-- ADDED
     if (id === 'userName') State.projectDetails.userName = value;
     if (id === 'userEmail') State.projectDetails.userEmail = value;
 
@@ -483,6 +485,7 @@ function saveCurrentConfig() {
         name: State.projectDetails.configName,
         user: State.projectDetails.userName,
         email: State.projectDetails.userEmail, 
+        organization: State.projectDetails.organizationName, // <-- ADDED
         products: { ...finalProductsToSave },
         locations: [...State.locations],
         infrastructure: { ...State.infrastructureDetails },
@@ -517,12 +520,14 @@ async function handleSaveAndNotify() {
     showAlert('Sending email...', 'info');
 
     try {
+        // --- EDIT: Get supportMaterials ---
         const finalProductsMap = State.isFinalEditMode ? State.configProducts : calculateTotalConfig(State.locations);
-        const { list, equipmentCost, labor, programming, grand } = computeFromProducts(finalProductsMap);
+        const { list, equipmentCost, labor, programming, grand, supportMaterials } = computeFromProducts(finalProductsMap);
         const filteredList = list.filter(p => p.count > 0 && p.id !== 'HSETCUST').sort((a, b) => a.name.localeCompare(b.name));
 
         const formData = new FormData();
         formData.append('Config_Name', State.projectDetails.configName);
+        formData.append('Organization', State.projectDetails.organizationName); // <-- ADDED
         formData.append('Designer', State.projectDetails.userName);
         formData.append('Email', State.projectDetails.userEmail);
         if (State.projectDetails.userEmail) {
@@ -628,6 +633,7 @@ async function handleSaveAndNotify() {
 
         formData.append('--- Summary ---', '---'); 
         formData.append('Equipment_Total', fmt(equipmentCost));
+        formData.append('Support_Materials', fmt(supportMaterials)); // <-- ADDED
         formData.append('Labor', fmt(labor));
         formData.append('Programming', fmt(programming));
         formData.append('GRAND_TOTAL', fmt(grand));
