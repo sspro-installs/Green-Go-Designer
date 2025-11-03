@@ -12,11 +12,11 @@ const State = {
         userName: "", 
         configName: "", 
         userEmail: "",
-        organizationName: "" // --- ADDED: This provides "memory" for the new field ---
+        organizationName: "" // --- ADDED THIS LINE ---
     },
     infrastructureDetails: {
         isMultiSite: 'no',
-        farDistance: 'no', // This is now obsolete but kept for loading old configs
+        farDistance: 'no',
         wirelessAtFar: false,
         wiredAtFar: false,
         needsWalkieTalkieInterface: false,
@@ -24,17 +24,19 @@ const State = {
     savedConfigs: [],
     isSending: false, 
     isCalculating: false,
-    hasManualLocation: false // --- ADDED: Flag for "Manually added items"
+    // --- ADDED: A flag to track if a manual location has been created ---
+    hasManualLocation: false 
 };
 
 // --- Global State Variables ---
+
+// --- ADDED: Default rate for Support Materials ---
+let SUPPORT_MATERIALS_RATE = 0.05; 
+let LABOR_RATE = 0.20;
+let PROGRAMMING_SETUP_RATE = 0.05;
 
 let productMap = {};
 let initialProducts = [];
 let lastLocationsHash = "";
 let cachedConfig = {};
 const productCache = new Map();
-
-// --- ADDED: Default rate, will be overwritten by pricing.json ---
-let SUPPORT_MATERIALS_RATE = 0.05; 
-
