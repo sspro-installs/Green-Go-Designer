@@ -1,5 +1,19 @@
 // --- 8. EVENT HANDLERS & ACTIONS ---
 
+// --- ADDED HELPER FUNCTIONS (COPIED FROM ui-render.js) ---
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+const fmt = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(amount || 0);
+// --- END ADDED HELPER FUNCTIONS ---
+
 /**
  * Shows a system alert.
  * @param {string} message - The message to display.
@@ -660,3 +674,4 @@ async function handleSaveAndNotify() {
     State.isSending = false;
     renderApp(); 
 }
+
