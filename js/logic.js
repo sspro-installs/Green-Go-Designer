@@ -158,9 +158,13 @@ function computeFromProducts(finalProductsMap) {
     const headsetsCount = list.reduce((s, i) => i.isHeadset ? s + (i.count || 0) : s, 0);
     const labor = equipmentCost * LABOR_RATE;
     const programming = equipmentCost * PROGRAMMING_SETUP_RATE;
-    const grand = equipmentCost + labor + programming;
+    
+    // --- EDITS START HERE ---
+    const supportMaterials = equipmentCost * 0.05; // 5% of equipment cost
+    const grand = equipmentCost + labor + programming + supportMaterials; // Added supportMaterials
 
-    return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand };
+    return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand, supportMaterials }; // Added supportMaterials
+    // --- EDITS END HERE ---
 }
 
 /**
@@ -202,6 +206,7 @@ function saveConfigs() {
             name: cfg.name,
             user: cfg.user,
             email: cfg.email, // Save email
+            organization: cfg.organization, // <-- ADDED
             products: Object.fromEntries(Object.entries(cfg.products).filter(([k, v]) => v > 0)),
             locations: cfg.locations,
             infrastructure: cfg.infrastructure,
