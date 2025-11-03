@@ -22,11 +22,18 @@ const State = {
         needsWalkieTalkieInterface: false,
     },
     savedConfigs: [],
-    isSending: false, // Replaces isPrinting
+    isSending: false, 
     isCalculating: false,
+    // --- ADDED: A flag to track if a manual location has been created ---
+    hasManualLocation: false 
 };
 
 // --- Global State Variables ---
+
+// --- ADDED: Default rate for Support Materials ---
+let SUPPORT_MATERIALS_RATE = 0.05; 
+let LABOR_RATE = 0.20;
+let PROGRAMMING_SETUP_RATE = 0.05;
 
 let productMap = {};
 let initialProducts = [];
