@@ -156,11 +156,21 @@ function computeFromProducts(finalProductsMap) {
     const equipmentCost = list.reduce((s, i) => s + (i.price || 0) * (i.count || 0), 0);
     const devicesCount = list.reduce((s, i) => i.isCoreDevice ? s + (i.count || 0) : s, 0);
     const headsetsCount = list.reduce((s, i) => i.isHeadset ? s + (i.count || 0) : s, 0);
+    
+    // --- NEW LINE ITEM ---
+    // This value is assumed to be loaded from pricing.json, just like LABOR_RATE
+    // We set a default of 0.05 (5%) here.
+    const SUPPORT_MATERIALS_RATE = 0.05; 
+    const supportMaterials = equipmentCost * SUPPORT_MATERIALS_RATE;
+    // --- END NEW LINE ITEM ---
+
     const labor = equipmentCost * LABOR_RATE;
     const programming = equipmentCost * PROGRAMMING_SETUP_RATE;
-    const grand = equipmentCost + labor + programming;
+    
+    // --- UPDATED GRAND TOTAL ---
+    const grand = equipmentCost + labor + programming + supportMaterials;
 
-    return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand };
+    return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, supportMaterials, grand };
 }
 
 /**
@@ -223,3 +233,4 @@ function saveConfigs() {
         }
     }
 }
+
