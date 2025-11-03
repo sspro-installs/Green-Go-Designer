@@ -8,7 +8,12 @@ const State = {
     isLocationModalOpen: false,
     editingLocationId: null,
     systemAlert: { show: false, type: 'info', message: "", onConfirm: null, onCancel: null },
-    projectDetails: { userName: "", configName: "", userEmail: "" },
+    projectDetails: { 
+        userName: "", 
+        configName: "", 
+        userEmail: "", 
+        organizationName: "" // <-- ADDED
+    },
     infrastructureDetails: {
         isMultiSite: 'no',
         farDistance: 'no',
