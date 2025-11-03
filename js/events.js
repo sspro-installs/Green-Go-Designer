@@ -37,11 +37,20 @@ function handleGlobalClick(e) {
 
     const action = target.dataset.action;
 
+    // --- NEW: Helper function for Step 2 validation ---
+    const validateStep2Fields = () => {
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(State.projectDetails.userEmail || "");
+        return State.projectDetails.configName &&
+               State.projectDetails.organizationName &&
+               State.projectDetails.userName &&
+               emailValid;
+    };
+
     if (action === 'set-step') {
         const newStep = parseInt(target.dataset.step, 10);
-        if (newStep > 2 && (!State.projectDetails.configName || !State.projectDetails.userName)) {
-            // EDIT: Changed to 'info' for better toast styling
-            showAlert('Please complete Project Setup first.', 'info'); 
+        // --- UPDATED: Check all 4 fields for progress bar navigation ---
+        if (newStep > 2 && !validateStep2Fields()) {
+            showAlert('Please complete Project Setup with all fields first.', 'info'); 
             return;
         }
         State.step = newStep;
@@ -49,6 +58,11 @@ function handleGlobalClick(e) {
     }
 
     if (action === 'start-step2-check') {
+        // --- UPDATED: Add validation check ---
+        if (!validateStep2Fields()) {
+            showAlert('Please fill out all project details with a valid email.', 'info');
+            return;
+        }
         State.step = 3;
         renderApp();
     }
@@ -60,6 +74,11 @@ function handleGlobalClick(e) {
     }
 
     if (action === 'skip-to-manual-check') {
+        // --- UPDATED: Add validation check ---
+        if (!validateStep2Fields()) {
+            showAlert('Please fill out all project details with a valid email.', 'info');
+            return;
+        }
         State.isFinalEditMode = true;
         State.step = 5;
         State.locations = [];
@@ -416,20 +435,41 @@ function handleProjectDetailsInput(e) {
     const { id, value } = e.target;
 
     if (id === 'configName') State.projectDetails.configName = value;
-    if (id === 'orgName') State.projectDetails.organizationName = value; // <-- ADDED
+    if (id === 'orgName') State.projectDetails.organizationName = value;
     if (id === 'userName') State.projectDetails.userName = value;
     if (id === 'userEmail') State.projectDetails.userEmail = value;
 
-    const btn = byld('start-step2-btn');
-    if (btn) {
-        if (State.projectDetails.configName && State.projectDetails.userName) {
-            btn.disabled = false;
-            btn.classList.remove('bg-gray-500', 'cursor-not-allowed');
-            btn.classList.add('btn-primary', 'hover:bg-green-700');
+    const startBtn = byld('start-step2-btn');
+    const skipBtn = byld('skip-to-manual-check-btn'); // <-- ADDED
+
+    // --- UPDATED: Validate all 4 fields ---
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(State.projectDetails.userEmail || "");
+    const allFieldsFilled = State.projectDetails.configName &&
+                            State.projectDetails.userName &&
+                            State.projectDetails.organizationName &&
+                            emailValid;
+
+    if (startBtn) {
+        if (allFieldsFilled) {
+            startBtn.disabled = false;
+            startBtn.classList.remove('bg-gray-500', 'cursor-not-allowed');
+            startBtn.classList.add('btn-primary', 'hover:bg-green-700');
         } else {
-            btn.disabled = true;
-            btn.classList.add('bg-gray-500', 'cursor-not-allowed');
-            btn.classList.remove('btn-primary', 'hover:bg-green-700');
+            startBtn.disabled = true;
+            startBtn.classList.add('bg-gray-500', 'cursor-not-allowed');
+            startBtn.classList.remove('btn-primary', 'hover:bg-green-700');
+        }
+    }
+    // --- ADDED: Logic to update skip button ---
+    if (skipBtn) {
+        if (allFieldsFilled) {
+            skipBtn.disabled = false;
+            skipBtn.classList.remove('bg-gray-500', 'cursor-not-allowed');
+            skipBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+        } else {
+            skipBtn.disabled = true;
+            skipBtn.classList.add('bg-gray-500', 'cursor-not-allowed');
+            skipBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
         }
     }
 }
@@ -468,15 +508,17 @@ function saveCurrentConfig() {
     const { grand } = computeFromProducts(finalProductsToSave);
     const validationResult = runValidationChecks(Object.entries(finalProductsToSave).map(([id, count]) => ({ ...getProduct(id), count })));
 
-    if (!State.projectDetails.configName || !State.projectDetails.userName) {
-        // EDIT: Changed to 'info' for better toast styling
-        showAlert('Please enter a Configuration Name and Your Name in Step 2 before saving.', 'info');
+    // --- UPDATED: Check all 4 fields before saving ---
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(State.projectDetails.userEmail || "");
+    if (!State.projectDetails.configName || !State.projectDetails.userName || !State.projectDetails.organizationName || !emailValid) {
+        showAlert('Please complete all fields in Step 2 with a valid email before saving.', 'info');
         State.step = 2;
         renderApp();
-        const configNameInput = byld('configName');
-        const userNameInput = byld('userName');
-        if (configNameInput && !State.projectDetails.configName) configNameInput.focus();
-        else if (userNameInput && !State.projectDetails.userName) userNameInput.focus();
+        // Focus logic (optional but helpful)
+        if (!State.projectDetails.configName) byld('configName')?.focus();
+        else if (!State.projectDetails.organizationName) byld('orgName')?.focus();
+        else if (!State.projectDetails.userName) byld('userName')?.focus();
+        else if (!emailValid) byld('userEmail')?.focus();
         return false;
     }
 
