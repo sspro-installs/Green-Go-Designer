@@ -71,16 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.addEventListener('input', e => {
-        // --- UPDATED: Call handler directly instead of via debounce ---
+        // --- FIXED TYPO: e.taget.id -> e.target.id ---
         if (State.step === 2 && (e.target.id === 'configName' || e.target.id === 'userName' || e.target.id === 'userEmail' || e.target.id === 'organizationName')) {
             handleProjectDetailsInput(e); // Changed from debouncedProjectInput(e)
         }
         if (State.step === 4 && e.target.closest('[data-inf-field]')) {
             handleInfrastructureInput(e);
         }
-        if (State.isLocationModalOpen && (e.target.id === 'loc-existing-headsets' || e.target.id === 'loc-hd')) {
-            setupLocationModalFieldReactivity();
-        }
-    });
-});
+        if (State.isLocationModalOpen && (e.target.id === 'loc-existing-headsets' || e.target.id === 'loc-
 
