@@ -15,6 +15,11 @@ async function loadPricingAndInit() {
         // Update rates
         LABOR_RATE = pricingData.labor_rate || LABOR_RATE;
         PROGRAMMING_SETUP_RATE = pricingData.programming_rate || PROGRAMMING_SETUP_RATE;
+        
+        // --- UPDATE: Load new Support Materials rate ---
+        // (If it's not in pricing.json, it will default to 0.05 in logic.js)
+        SUPPORT_MATERIALS_RATE = pricingData.support_materials_rate || SUPPORT_MATERIALS_RATE;
+
 
         // Update product prices and SKUs
         productGroups.forEach(group => {
@@ -65,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.addEventListener('input', e => {
-        if (State.step === 2 && (e.target.id === 'configName' || e.target.id === 'userName' || e.target.id === 'userEmail')) {
+        // --- UPDATED: Added 'organizationName' to the listener ---
+        if (State.step === 2 && (e.target.id === 'configName' || e.target.id === 'userName' || e.target.id === 'userEmail' || e.target.id === 'organizationName')) {
             debouncedProjectInput(e);
         }
         if (State.step === 4 && e.target.closest('[data-inf-field]')) {
@@ -76,3 +82,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
