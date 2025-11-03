@@ -807,4 +807,3 @@ function renderPrintSection(productsToDisplay, totals) {
     </div>
 </div>`;
 }
-
