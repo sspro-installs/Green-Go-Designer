@@ -15,11 +15,6 @@ async function loadPricingAndInit() {
         // Update rates
         LABOR_RATE = pricingData.labor_rate || LABOR_RATE;
         PROGRAMMING_SETUP_RATE = pricingData.programming_rate || PROGRAMMING_SETUP_RATE;
-        
-        // --- UPDATE: Load new Support Materials rate ---
-        // (If it's not in pricing.json, it will default to 0.05 in logic.js)
-        SUPPORT_MATERIALS_RATE = pricingData.support_materials_rate || SUPPORT_MATERIALS_RATE;
-
 
         // Update product prices and SKUs
         productGroups.forEach(group => {
@@ -61,8 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start the app by loading pricing
     loadPricingAndInit();
 
-    // --- UPDATED: Removed debounce ---
-    // const debouncedProjectInput = debounce(handleProjectDetailsInput, 200);
+    const debouncedProjectInput = debounce(handleProjectDetailsInput, 200);
 
     // Global event listeners
     document.body.addEventListener('click', e => {
@@ -71,12 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.addEventListener('input', e => {
-        // --- FIXED TYPO: e.taget.id -> e.target.id ---
-        if (State.step === 2 && (e.target.id === 'configName' || e.target.id === 'userName' || e.target.id === 'userEmail' || e.target.id === 'organizationName')) {
-            handleProjectDetailsInput(e); // Changed from debouncedProjectInput(e)
+        if (State.step === 2 && (e.target.id === 'configName' || e.target.id === 'userName' || e.target.id === 'userEmail')) {
+            debouncedProjectInput(e);
         }
         if (State.step === 4 && e.target.closest('[data-inf-field]')) {
             handleInfrastructureInput(e);
         }
-        if (State.isLocationModalOpen && (e.target.id === 'loc-existing-headsets' || e.target.id === 'loc-
-
+        if (State.isLocationModalOpen && (e.target.id === 'loc-existing-headsets' || e.target.id === 'loc-hd')) {
+            setupLocationModalFieldReactivity();
+        }
+    });
+});
