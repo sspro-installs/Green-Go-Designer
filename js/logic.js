@@ -160,7 +160,7 @@ function computeFromProducts(finalProductsMap) {
     const programming = equipmentCost * PROGRAMMING_SETUP_RATE;
     
     // --- EDITS START HERE ---
-    const supportMaterials = equipmentCost * 0.05; // 5% of equipment cost
+    const supportMaterials = equipmentCost * 0.10; // 10% of equipment cost
     const grand = equipmentCost + labor + programming + supportMaterials; // Added supportMaterials
 
     return { list, equipmentCost, devicesCount, headsetsCount, labor, programming, grand, supportMaterials }; // Added supportMaterials
