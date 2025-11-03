@@ -106,6 +106,10 @@ function renderSidebar(equipmentCost, devicesCount, headsetsCount, labor, progra
             <div class="flex-between"><span>Total Headsets:</span><span>${headsetsCount || 0}</span></div>
         </div>
         ${costSection}
+        <!-- REQ #5: Add ballpark estimate note -->
+        <p class="text-xs text-gray-400 mt-4 text-center">
+            This is a ballpark estimate. A final quote will be given separately.
+        </p>
     </div>
     
     <!-- EDIT 7 (Last time): Added "Reset System" button card (Request #5) -->
@@ -316,6 +320,8 @@ function renderStep3LocationManager(aggregatedBOM) {
                     <p class="text-xs text-gray-400">${summary}</p>
                 </div>
                 <div class="flex space-x-2">
+                    <!-- REQ #1: Making icons transparent. This is best done with CSS, but adding 'opacity-75' is a fallback. -->
+                    <!-- I will ask for css/styles.css to do this properly. -->
                     <button data-action="edit-location" data-id="${loc.id}" class="text-indigo-400 hover:text-indigo-300 p-1">${Icons.Edit()}</button>
                     <button data-action="delete-location" data-id="${loc.id}" class="text-red-400 hover:text-red-300 p-1">${Icons.Trash2()}</button>
                 </div>
@@ -330,7 +336,7 @@ function renderStep3LocationManager(aggregatedBOM) {
 
 function renderStep4Infrastructure() {
     const inf = State.infrastructureDetails;
-    const isFarDistance = inf.farDistance === 'yes';
+    // REQ #2: Removed isFarDistance variable
     return `
 <div class="space-y-6">
     <h2 class="text-xl font-semibold text-green-400">4. Infrastructure & Connectivity</h2>
@@ -359,33 +365,7 @@ function renderStep4Infrastructure() {
         ${inf.isMultiSite === 'yes' ? '<p class="text-xs text-red-400 mt-2">Adds Bridge Interface to BOM</p>' : ""}
     </div>
 
-    <div class="p-4 bg-gray-700 rounded-lg border-l-4 border-indigo-500">
-        <label class="block font-medium text-gray-300 mb-2">Furthest point over 150ft/50m from rack?</label>
-        <div class="flex space-x-4 text-gray-300">
-            <label class="inline-flex items-center">
-                <input type="radio" data-inf-field="farDistance" name="farDistance" value="no" ${inf.farDistance === 'no' ? 'checked' : ""} class="text-indigo-500 bg-gray-600 border-gray-500" />
-                <span class="ml-2 text-sm">No</span>
-            </label>
-            <label class="inline-flex items-center">
-                <input type="radio" data-inf-field="farDistance" name="farDistance" value="yes" ${inf.farDistance === 'yes' ? 'checked' : ""} class="text-indigo-500 bg-gray-600 border-gray-500" />
-                <span class="ml-2 text-sm">Yes</span>
-            </label>
-        </div>
-        ${isFarDistance ? `
-        <p class="text-xs text-red-400 mt-3">Requires fiber link and additional switch at far end if devices are present there.</p>
-        <div class="space-y-2 mt-2 text-gray-300">
-            <label class="inline-flex items-center">
-                <input type="checkbox" data-inf-field="wirelessAtFar" ${inf.wirelessAtFar ? 'checked' : ""} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
-                <span class="ml-2 text-sm">Wireless coverage needed at far location</span>
-            </label>
-            <label class="inline-flex items-center">
-                <input type="checkbox" data-inf-field="wiredAtFar" ${inf.wiredAtFar ? 'checked' : ""} class="h-4 w-4 text-indigo-500 rounded bg-gray-600 border-gray-500" />
-                <span class="ml-2 text-sm">Wired devices needed at far location</span>
-            </label>
-        </div>
-        ${(inf.wiredAtFar || inf.wirelessAtFar) ? '<p class="text-xs text-red-400 mt-2">Adds SW18 (main), SFOM Fiber Modules, and an SW8 (remote) to BOM.</p>' : '<p class="text-xs text-yellow-400 mt-2">Adds SW18 (main) and SFOM Fiber Modules for future expansion. No remote switch added yet.</p>'}
-        ` : ""}
-    </div>
+    <!-- REQ #2: Removed "Furthest point" question block -->
 
     <div class="flex-between pt-4 border-t border-gray-700">
         <button data-action="set-step" data-step="3" class="btn btn-secondary px-4 py-2">Back</button>
@@ -401,7 +381,12 @@ function renderStep5Review(productsToDisplay, totals) {
         count: productsToDisplay.find(item => item.id === p.id)?.count || 0
     })).filter(p => p.id !== 'HSETCUST');
 
-    const sortedProducts = fullListWithCounts.sort((a, b) => a.name.localeCompare(b.name));
+    // REQ #3a: Sort list to show items with count > 0 first, then alphabetically
+    const sortedProducts = fullListWithCounts.sort((a, b) => {
+        if (a.count > 0 && b.count === 0) return -1;
+        if (a.count === 0 && b.count > 0) return 1;
+        return a.name.localeCompare(b.name);
+    });
 
     const groups = productGroups.map(g => {
         if (g.name === 'Customer Supplied') return null;
@@ -490,10 +475,11 @@ function renderSavedConfigs() {
 <div class="p-4 bg-gray-800 shadow-xl rounded-lg border border-gray-700">
     <!-- EDIT: Added flex-between and Delete All button -->
     <div class="flex-between items-center mb-4">
+        <!-- REQ #6: Change title -->
         <h2 class="text-2xl font-bold text-white flex items-center">
             <!-- EDIT: Wrapped icon in span to constrain size -->
             <span class="w-6 h-6 mr-2">${Icons.Clipboard('w-6 h-6 text-green-400')}</span>
-            Saved (${State.savedConfigs.length})
+            Saved Configurations
         </h2>
         <!-- EDIT: Added Delete All button -->
         ${State.savedConfigs.length > 0 ? `
