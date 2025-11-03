@@ -61,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start the app by loading pricing
     loadPricingAndInit();
 
-    const debouncedProjectInput = debounce(handleProjectDetailsInput, 200);
+    // --- UPDATED: Removed debounce ---
+    // const debouncedProjectInput = debounce(handleProjectDetailsInput, 200);
 
     // Global event listeners
     document.body.addEventListener('click', e => {
@@ -70,9 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.addEventListener('input', e => {
-        // --- UPDATED: Added 'organizationName' to the listener ---
+        // --- UPDATED: Call handler directly instead of via debounce ---
         if (State.step === 2 && (e.target.id === 'configName' || e.target.id === 'userName' || e.target.id === 'userEmail' || e.target.id === 'organizationName')) {
-            debouncedProjectInput(e);
+            handleProjectDetailsInput(e); // Changed from debouncedProjectInput(e)
         }
         if (State.step === 4 && e.target.closest('[data-inf-field]')) {
             handleInfrastructureInput(e);
